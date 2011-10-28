@@ -16,7 +16,6 @@ class LastSim extends Front_Controller {
 		parent::__construct();
 		$this->getURIData();
 		$this->load->model('ootp_dashboard/OOTPData_model','ootpdata_model');
-		$this->teams = $this->ootpdata_model->getTeams($this->uriVars['league_id']);
 		$this->load->model('lastsim/LastSim_model', 'lastsim_model');
 	}
 	/**
@@ -25,7 +24,7 @@ class LastSim extends Front_Controller {
 	 *
 	 */
 	public function index() {
-		Template::set('teams',$this->teams);
+		Template::set('teams',$this->ootpdata_model->getTeams($this->uriVars['league_id']));
 		Template::render();
 	}
 	/**
@@ -41,7 +40,7 @@ class LastSim extends Front_Controller {
 			$this->lastsim_model->init($this->config['calcLength'],$this->config['autoSimLength'],$this->config['simLength']);
 
 			$league_date = $this->ootpdata_model->getLeagueDate($this->uriVars['league_id']);
-			Template::set('teams',$this->teams);
+			Template::set('teams',$this->lastsim_model->getTeams($this->uriVars['league_id']));
 			Template::set('boxscores',$this->lastsim_model->getBoxScores($league_date,$this->uriVars['team_id']));
 			Template::render();
 		}

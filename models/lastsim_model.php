@@ -161,7 +161,7 @@ class LastSim_model extends MY_Model {
 			}
 		}
 		$query->free_result();
-                $this->db->dbprefix = $oldPrefix;
+        $this->db->dbprefix = $oldPrefix;
 		return $teams;
 	}
 	

@@ -13,11 +13,11 @@
 			$ainn="";
 			$hinn="";
 			$inncnt=0;
-                        $gid = $grow['game_id'];
-                        $hid=$grow['home_team'];
-                          $hname=$teams[$hid]['name'];
-                          $aid=$grow['away_team'];
-                          $aname=$teams[$aid]['name'];
+            $gid = $grow['game_id'];
+            $hid=$grow['home_team'];
+			$hname=$teams[$hid]['name'];
+            $aid=$grow['away_team'];
+            $aname=$teams[$aid]['name'];
 			if (isset($grow['inningScores']) && sizeof($grow['inningScores']) > 0 ) {
 				foreach($grow['inningScores'] as $row) {
 					if ($row['team']==0)  {
