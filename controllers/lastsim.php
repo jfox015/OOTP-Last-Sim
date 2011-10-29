@@ -17,6 +17,11 @@ class LastSim extends Front_Controller {
 		$this->getURIData();
 		$this->load->model('ootp_dashboard/OOTPData_model','ootpdata_model');
 		$this->load->model('lastsim/LastSim_model', 'lastsim_model');
+		Template::set_theme('ootp');
+		Assets::add_css( array(Template::theme_url() .'css/styles.css',
+		Template::theme_url() .'css/ootpsqlstyles.css'),'screen');
+		
+		Assets::add_js( Template::theme_url() .'js/jquery.gamecast.js');
 	}
 	/**
 	 *	INDEX.
