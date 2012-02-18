@@ -4,8 +4,8 @@ class LastSim_model extends MY_Model {
 
 	protected $table        = 'games';
 	protected $tables       = array();
-	protected $key          = 'id';
-	protected $soft_deletes = true;
+	protected $key          = 'game_id';
+	protected $soft_deletes = false;
 	protected $date_format  = 'datetime';
 	protected $set_created  = false;
 	protected $set_modified = false;
@@ -25,27 +25,21 @@ class LastSim_model extends MY_Model {
 	 *	Initalizes the model for queries.
 	 *
 	 */
-	public function init($calcLength = '', $autoSimLength = '', $simLen = '') {
+	public function init($calcLength = 0, $autoSimLength = '', $simLen = 7) {
 		if ($autoSimLength==1) {
-			$simLen=$calcLength;
-			if (($simLen=="") || ($simLen==0)) {
-				$this->simLen=$simLen;
-			}
+			$this->simLen=(($calcLength != 0) ? $calcLength : $simLen);
 		} else {
 			$this->simLen=$simLen;
 		}
-		if (($this->simLen=="") || ($this->simLen==0)) {$this->simLen=10;}
 	}
 	/**
 	 *	GET BOX SCORES.
 	 *	Fetch Box scores for the given period.
 	 *
 	 */
-	public function getBoxScores($lgdate = false, $team_id = false) {
+	public function get_box_scores($lgdate = false, $team_id = false) {
 		if ($lgdate === false) return false;
 		$boxscores = array();
-		$oldPrefix = $this->db->dbprefix;
-                $this->db->dbprefix = "";
 		$this->db->select('game_id,played,home_team,away_team,games.date,innings,runs0,runs1,hits0,hits1,errors0,errors1,winning_pitcher,losing_pitcher,save_pitcher')
 				 ->where('played',1)
 				 ->where("DATEDIFF('".$lgdate."',games.date)<".$this->simLen);
@@ -65,8 +59,7 @@ class LastSim_model extends MY_Model {
 			} // END foreach
 		} // END if
 		$query->free_result();
-		$this->db->dbprefix = $oldPrefix;
-                return $boxscores;
+        return $boxscores;
 	}
 	/**
 	 *	GET INNING SCORES.
@@ -138,31 +131,6 @@ class LastSim_model extends MY_Model {
 		$query->free_result();
 		return $batterStats;
 	}
-	/**
-	 *	GET TEAMS.
-	 *	Fetch all teams for the given league ID.
-	 *
-	 */
-	public function getTeams($league_id = 100) {
-		
-		$teams = array();
-		$oldPrefix = $this->db->dbprefix;
-                $this->db->dbprefix = "";
-                $query = $this->db->select('team_id,abbr,name,nickname,logo_file')
-				 ->where('league_id',$league_id)
-				 ->where('allstar_team',0)
-				 ->order_by('name,nickname','asc')
-				 ->get('teams');
-		if ($query->num_rows() > 0) {
-			foreach($query->result() as $row) {
-                            $teams = $teams + array($row->team_id=>array('team_id'=>$row->team_id,'abbr'=>$row->abbr,'name'=>$row->name,
-                                'nickname'=>$row->nickname,'logo_file'=>$row->logo_file));
-                           // array_push($teams,$row);
-			}
-		}
-		$query->free_result();
-        $this->db->dbprefix = $oldPrefix;
-		return $teams;
-	}
+	
 	
 }

@@ -14,14 +14,9 @@ class LastSim extends Front_Controller {
 	 */
 	public function __construct() {
 		parent::__construct();
-		$this->getURIData();
-		$this->load->model('ootp_dashboard/OOTPData_model','ootpdata_model');
-		$this->load->model('lastsim/LastSim_model', 'lastsim_model');
-		Template::set_theme('ootp');
-		Assets::add_css( array(Template::theme_url() .'css/styles.css',
-		Template::theme_url() .'css/ootpsqlstyles.css'),'screen');
-		
-		Assets::add_js( Template::theme_url() .'js/jquery.gamecast.js');
+		$this->load->model('LastSim_model', 'sim_model');
+		$this->load->model('league_manager/Teams_model', 'teams_model');
+		$this->load->model('league_manager/Leagues_model', 'leagues_model');
 	}
 	/**
 	 *	INDEX.
@@ -29,7 +24,8 @@ class LastSim extends Front_Controller {
 	 *
 	 */
 	public function index() {
-		Template::set('teams',$this->ootpdata_model->getTeams($this->uriVars['league_id']));
+		$league_id = $this->uri->segment(4);
+		Template::set('teams',$this->teams_model->get_teams_array($league_id));
 		Template::render();
 	}
 	/**
@@ -38,20 +34,18 @@ class LastSim extends Front_Controller {
 	 *
 	 */
 	public function boxscores() {
-        if (!isset($this->uriVars['team_id'])) {
-			$this->index();
-		} else {
-			$this->config = read_config('last_sim');
-			$this->lastsim_model->init($this->config['calcLength'],$this->config['autoSimLength'],$this->config['simLength']);
-
-			$league_date = $this->ootpdata_model->getLeagueDate($this->uriVars['league_id']);
-			Template::set('teams',$this->lastsim_model->getTeams($this->uriVars['league_id']));
-			Template::set('boxscores',$this->lastsim_model->getBoxScores($league_date,$this->uriVars['team_id']));
-			Template::render();
+        $league_id = $this->uri->segment(4);
+		$team_id = $this->uri->segment(5);
+		if (isset($team_id) || $team_id !== NULL) {
+			$league = $this->leagues_model->find($league_id);
+			if (isset($league) && $league->league_id != NULL) {
+				$sim_config = read_config('league_manager');
+				$this->sim_model->init($sim_config['auto_sim_length'],$sim_config['calc_length'],$sim_config['sim_length']);
+				Template::set('boxscores',$this->sim_model->get_box_scores($league->current_date,$team_id));
+			}	
 		}
-	}
-	protected function getUriData() {
-		parent::getUriData();
-        $this->uriVars['league_id'] = 100;
+		Template::set('teams',$this->teams_model->get_teams_array($league_id));
+		Template::set_view('last_sim/index');
+		Template::render();
 	}
 }
