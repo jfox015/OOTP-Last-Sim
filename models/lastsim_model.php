@@ -10,15 +10,13 @@ class LastSim_model extends MY_Model {
 	protected $set_created  = false;
 	protected $set_modified = false;
 
-	protected $simLen = 1;
-	
+    protected $simLen = 1;
 	/**
 	 *	C'TOR
 	 *	Creates a new instance of LastSim_model
 	 */
 	public function __construct() {
 		parent::__construct();
-        $this->load->database('default');
 	}
 	/**
 	 *	INIT.
@@ -39,7 +37,9 @@ class LastSim_model extends MY_Model {
 	 */
 	public function get_box_scores($lgdate = false, $team_id = false) {
 		if ($lgdate === false) return false;
-		$boxscores = array();
+		$oldprefix = $this->db->dbprefix;
+        $this->db->dbprefix = '';
+        $boxscores = array();
 		$this->db->select('game_id,played,home_team,away_team,games.date,innings,runs0,runs1,hits0,hits1,errors0,errors1,winning_pitcher,losing_pitcher,save_pitcher')
 				 ->where('played',1)
 				 ->where("DATEDIFF('".$lgdate."',games.date)<".$this->simLen);
@@ -59,6 +59,7 @@ class LastSim_model extends MY_Model {
 			} // END foreach
 		} // END if
 		$query->free_result();
+        $this->db->dbprefix = $oldprefix;
         return $boxscores;
 	}
 	/**

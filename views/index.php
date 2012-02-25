@@ -4,15 +4,11 @@
 	<h1>Last Sim -> Boxscores</h1>
 	<div style="width:100%;text-align:right;">
 	<p>
-	<?php if (isset($teams) && sizeof($teams) > 0) {
-		$text="<div class='textbox'>\n";
-		$text.=" <table cellpadding=2 cellspacing=0 border=0>\n";
-		$text.="  <tr class='title'><td colspan=3>Team Results</td></tr>\n";
-		$text.="  <tr>\n";
-		$text.="   <td>\n";
-		$text.="<form method='get' action='' class='inline'>\n";
-		$text.=' <label for="team_id">Select Team:</label>';
-		$text.=" <select id='team_id' name='team_id'>\n";
+	<?php
+        if (isset($teams) && sizeof($teams) > 0) {
+		echo form_open();
+		echo form_label("Select Team:", "team_id");
+		echo '<select id="team_id" name="team_id">'."\n";
 		$fnd=0;
 		$minTm=0;
 		foreach($teams as $row) {
@@ -20,19 +16,12 @@
 			if ($minTm==0) {$minTm=$tid;}
 			$tname=$row['name']." ".$row['nickname'];
 			$tname=str_replace(".","",$tname);
-			$text.='  <option value="'.$tid.'">'.$tname.'</option>\n';
+			echo '  <option value="'.$tid.'">'.$tname.'</option>'."\n";
 			if ($fnd==0) {$team_id=$minTm;}
 		}
-		$text.=" </select>\n";
-		$text.="    <input type='button' id='submitBtn' value='Go' style='float:left;' />\n";
-		$text.="   </td>\n";
-		$text.="   <td>&nbsp;</td>\n";
-		$text.="   <td width='400px'>&nbsp;</td>\n";
-		$text.="  </tr>\n";
-                $text.="  </table>\n";
-		$text.="</form>\n";
-                $text.="</div>\n";
-		print($text);
+		echo '</select>'."\n";
+		echo form_button("submitBtn","Go",' id="submitBtn"');
+		echo form_close();
 	}
 	?>
 	</div>
@@ -41,8 +30,8 @@
 	$tothr=0;
 	$text = "";
 	$gid = 0;
-	$report_path = "http://localhost/";
-	if (isset($boxscores) && sizeof($boxscores) > 0) {
+	$report_path = $settings['ootp.asset_url'];
+	if (isset($boxscores) && is_array($boxscores) && sizeof($boxscores) > 0) {
 		foreach($boxscores as $grow) {
 			$inntxt="<td class='hc' width=18>&#160;</td>";
 			$ainn="";
@@ -81,7 +70,7 @@
 				foreach($grow['pitcherInfo'] as $type =>$row) {
 					$fi=$row['first_name'];
 					$fi=$fi[0];
-					$pitcher[$type]='<a href="./player.php?player_id='.$row['player_id'].'">'.$fi.'. '.$row['last_name'].'</a>';
+					$pitcher[$type]='<a href="'.$report_path.'players/player_'.$row['player_id'].'.html">'.$fi.'. '.$row['last_name'].'</a>';
 				}
 				$ptxt="W: ".$pitcher['wp']." L: ".$pitcher['lp'];
 				if (isset($pitcher['sv']) && !empty($pitcher['sv'])) {$ptxt.=" S: ".$pitcher['sv'];}
@@ -99,7 +88,7 @@
                                         if ($hrcnt>0) {
 						$fi=$row['first_name'];
 						$fi=$fi[0];
-						$hrdata[$tid].=" <a href='./player.php?player_id=".$row['player_id']."'>".$fi.". ".$row['last_name']."</a>";
+						$hrdata[$tid].=" <a href='".$report_path."players/player_".$row['player_id'].".html'>".$fi.". ".$row['last_name']."</a>";
 						if ($hrcnt>1) {$hrdata[$tid].=" (".$hrcnt.")";}
 						$hrdata[$tid].=",";
 						$tothr++;
@@ -121,8 +110,10 @@
 			$text.="    ".$gDate;
 			$text.=": <a href='".$report_path."box_scores/game_box_".$gid.".html'>Box Score</a>";
 			$text.=" | <a href='".$report_path."game_logs/log_".$gid.".html'>Game Log</a>\n";
-			$text.=" | <a href='".$report_path."bonfire/gamecast/index/game_id/".$gid."'>Replay</a>\n";
-			//$text.=" | <a href='./matchups.php?team_id1=".$hid."&team_id2=".$aid."'>Season Series</a>\n";
+			if ($gamecast_links) {
+				$text.=" | ".anchor('gamecast/index/'.$gid,'Replay')."\n";
+				}
+			//$text.=" | ".anchor('lastsim/matchups/'.$hid.'/'.$aid,'Season Series')."\n";
 			$text.="   </td>\n";
 			$text.="  </tr>\n";
 			$text.="  <tr>\n";
@@ -148,18 +139,17 @@
 			$text.="   </td>\n";
 			$text.="  </tr>\n";
 			$text.=" </table>\n";
-		}	 
-		$text.=" </div>\n";
+		}
 	}
 	print($text);
 	?>
 	</div>
 </div>
 <script type="text/javascript">
-head.ready(function() {
-    $('#submitBtn').click(function(e) {
-        e.preventDefault();
-        document.location.href="lastsim/boxscores//"+$('#team_id').val();
+    head.ready(function() {
+        $('#submitBtn').click(function(e) {
+            e.preventDefault();
+            document.location.href="<?php echo(site_url()); ?>/lastsim/boxscores/"+$('#team_id').val();
+        });
     });
-});
 </script>

@@ -1,15 +1,15 @@
 <?php if (!defined('BASEPATH')) exit('No direct script access allowed');
 /**
  *	Module:: Last sim
- *	Displays functions that deal with the most recent sim data
+ *	Displays functions that deal with the most recent sim data.
  *
  */
 class LastSim extends Front_Controller {
 
 	var $teams = array();
 	/**
-	 *	C'TOR.
-	 *	Builds a new instance of LastSim.
+	 *	__construct.
+	 *	Builds a new instance of the LastSim module.
 	 *
 	 */
 	public function __construct() {
@@ -24,28 +24,39 @@ class LastSim extends Front_Controller {
 	 *
 	 */
 	public function index() {
-		$league_id = $this->uri->segment(4);
-		Template::set('teams',$this->teams_model->get_teams_array($league_id));
-		Template::render();
+		$this->boxscores();
 	}
 	/**
 	 *	BOXSCORES.
-	 *	Retirves and displays boxscores for a particular team for a given period.
+	 *	Retrieves and displays boxscores for a particular team for a period specified 
+	 *	int he main league sim settings.
+	 *	@param	$league_id	int 	League ID
+	 *	@param	$team_id	int 	Team ID
 	 *
 	 */
 	public function boxscores() {
-        $league_id = $this->uri->segment(4);
-		$team_id = $this->uri->segment(5);
+
+        $settings = $this->settings_lib->find_all();
+        $team_id = $this->uri->segment(3);
+		$league_id = $this->uri->segment(4);
+		if (!isset($league_id) || empty($league_id) || $league_id == -1) {
+			$league_id = $settings['ootp.league_id'];
+		}
 		if (isset($team_id) || $team_id !== NULL) {
 			$league = $this->leagues_model->find($league_id);
-			if (isset($league) && $league->league_id != NULL) {
-				$sim_config = read_config('league_manager');
-				$this->sim_model->init($sim_config['auto_sim_length'],$sim_config['calc_length'],$sim_config['sim_length']);
+            if (isset($league) && $league->league_id != NULL) {
+				$this->sim_model->init($settings['ootp.auto_sim_length'],$settings['ootp.calc_length'],$settings['ootp.sim_length']);
 				Template::set('boxscores',$this->sim_model->get_box_scores($league->current_date,$team_id));
+				// TEST if Gamecast module is installed. Set link display var to return TRUWE or FALSE based on test
+				Template::set('gamecast_links',(@Modules::find('config/config.php','gamecast')) ? true : false);
 			}	
 		}
+		if (!function_exists('form_open')) {
+            $this->load->helper('form');
+        }
+        Template::set('settings',$settings);
 		Template::set('teams',$this->teams_model->get_teams_array($league_id));
-		Template::set_view('last_sim/index');
+		Template::set_view('lastsim/index');
 		Template::render();
 	}
 }
