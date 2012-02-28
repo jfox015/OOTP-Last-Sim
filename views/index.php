@@ -1,31 +1,33 @@
 
 <div id="content">
 	<div id="main">
-	<h1>Last Sim -> Boxscores</h1>
-	<div style="width:100%;text-align:right;">
-	<p>
-	<?php
-        if (isset($teams) && sizeof($teams) > 0) {
-		echo form_open();
-		echo form_label("Select Team:", "team_id");
-		echo '<select id="team_id" name="team_id">'."\n";
-		$fnd=0;
-		$minTm=0;
-		foreach($teams as $row) {
-			$tid=$row['team_id'];
-			if ($minTm==0) {$minTm=$tid;}
-			$tname=$row['name']." ".$row['nickname'];
-			$tname=str_replace(".","",$tname);
-			echo '  <option value="'.$tid.'">'.$tname.'</option>'."\n";
-			if ($fnd==0) {$team_id=$minTm;}
+		<h1>Last Sim -> Boxscores</h1>
+		<div style="width:100%;text-align:right;">
+		<p>
+		<?php
+			if (isset($teams) && sizeof($teams) > 0) {
+			echo form_open();
+			echo form_label("Select Team:", "team_id");
+			echo '<select id="team_id" name="team_id">'."\n";
+			$fnd=0;
+			$minTm=0;
+			foreach($teams as $row) {
+				$tid=$row['team_id'];
+				if ($minTm==0) {$minTm=$tid;}
+				$tname=$row['name']." ".$row['nickname'];
+				$tname=str_replace(".","",$tname);
+				echo '  <option value="'.$tid.'">'.$tname.'</option>'."\n";
+				if ($fnd==0) {$team_id=$minTm;}
+			}
+			echo '</select>'."\n";
+			echo form_button("submitBtn","Go",' id="submitBtn"');
+			echo form_close();
 		}
-		echo '</select>'."\n";
-		echo form_button("submitBtn","Go",' id="submitBtn"');
-		echo form_close();
-	}
-	?>
-	</div>
-	
+		?>
+		</div>
+		<div class="2col">
+			<div class="column">
+			<h3>Last Sim Results</h3>
 	<?php
 	$tothr=0;
 	$text = "";
@@ -139,12 +141,61 @@
 			$text.="   </td>\n";
 			$text.="  </tr>\n";
 			$text.=" </table>\n";
-		}
-	}
+		} // END for
+	} else {
+		$text = "<p><b>No recent games were found.</p>\n";
+	} // END if
 	print($text);
+	unset($text);
 	?>
-	</div>
-</div>
+			</div>
+			<div class="column">
+			<h3>Upcoming Schedule</h3>
+		<?php
+		if (isset($upcoming) && is_array($upcoming) && sizeof($upcoming) > 0) {
+			foreach($upcoming as $row) {
+			unset($date);
+			$date =	strtotime($row['date']);
+			$text ="<table cellspacing=0 cellpadding=0 style='border:0px;width:400px;margin:10px;'>\n";
+			$text.=" <tr>\n";
+			$text.="  <td class='hl'>\n";
+			$text.="   ".date("M j, Y", $date)."\n";
+			$text.="  </td>\n";
+			$text.=" </tr>\n";
+			$text.=" <tr>\n";
+			$text.="  <td>\n";
+			$text.="    <table cellpadding=0 cellspacing=0 style='border:1px black solid;width:400px;margin-top:2px;margin-left:0px;'>\n";
+			$text.="     <tr>\n";
+			$text.="      <td style='padding:1px;width:44px;border-right:1px solid #999999;'>\n";
+			$text.="       <img src='".$report_path."images/".str_replace(".png","_40.png",$teams[$aid]['logo_file'])."' width=40 height=40><br>\n";
+			$text.="       <img src='".$report_path."images/".str_replace(".png","_40.png",$teams[$hid]['logo_file'])."' width=40 height=40>\n";
+			$text.="      </td>\n";
+			$text.="        <td valign='top' style='padding:0px;margin:0px'>\n";
+			$text.="       <table cellspacing=0 cellpadding=1 style='width:356px;margin:0px;border:0px'>\n";
+			$text.="        <tr><td class='hl' colspan=2>".$date("g:i a",$date)."</td></tr>\n";
+			$text.="        <tr><td class='gl' width=175><a href='".$report_path."/teams/team_".$aid.".html'>".$teams[$aid]['name']."</a></td>\n";
+			$text.="            <td class='gl' width=175>".$team_scores[$aid]['w']."-".$team_scores[$aid]['l'].", On Road: ".$team_scores[$aid]['rw']."-".$team_scores[$aid]['rl']."</td></tr>\n";
+			$text.="        <tr><td class='gl' width=175><a href='".$report_path."/teams/team_".$hid.".html'>".$teams[$hid]['name']."</a></td>\n";
+			$text.="            <td class='gl' width=175>".$team_scores[$hid]['w']."-".$team_scores[$hid]['l'].", At Home: ".$team_scores[$hid]['hw']."-".$team_scores[$hid]['hl']."</td></tr>\n";
+			$text.="        <tr><td class='gl' colspan=2 style='padding:6px 4px 4px 4px;'><a href='./matchups.php?team_id1=".$hid."&team_id2=".$aid."'>Season Series</a>:<br />".$teams[$aid]['name']." ".max(0,$team_scores[$aid]['wVs'][$hid])." vs. ".max(0,$team_scores[$hid]['wVs'][$aid])." ".$teams[$hid]['name']."</td></tr>\n";
+			$text.="       </table>\n";
+			$text.="      </td>\n";
+			$text.="     </tr>\n";
+			$text.="    </table>\n";
+			$text.="   </td>\n";
+			$text.="  </tr>\n";
+			$text.=" </table>\n";
+			} // END for
+		} else {
+			$text = "<p><b>No upcoming games were found.</p>\n";
+		} // END if // END if
+		print($text);
+		unset($text);
+		?>	
+			</div> <!-- column -->
+		</div> <!-- 2col -->
+	</div> <!-- main -->
+</div> <!-- content -->
 <script type="text/javascript">
     head.ready(function() {
         $('#submitBtn').click(function(e) {
