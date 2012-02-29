@@ -24,7 +24,7 @@ class LastSim extends Front_Controller {
 	 *
 	 */
 	public function index() {
-		$this->boxscores();
+		redirect('/lastsim/boxscores/');
 	}
 	/**
 	 *	BOXSCORES.
@@ -42,11 +42,13 @@ class LastSim extends Front_Controller {
 		if (!isset($league_id) || empty($league_id) || $league_id == -1) {
 			$league_id = $settings['ootp.league_id'];
 		}
-		if (isset($team_id) || $team_id !== NULL) {
+		if (isset($team_id) && !empty($team_id) && $team_id !== NULL) {
 			$league = $this->leagues_model->find($league_id);
             if (isset($league) && $league->league_id != NULL) {
 				$this->sim_model->init($settings['ootp.auto_sim_length'],$settings['ootp.calc_length'],$settings['ootp.sim_length']);
 				Template::set('boxscores',$this->sim_model->get_box_scores($league->current_date,$team_id));
+				Template::set('upcoming',$this->sim_model->get_upcoming_games($league->current_date,$team_id));
+				Template::set('team_scores',$this->sim_model->get_situational_scoring($team_id,$league->league_id));
 				// TEST if Gamecast module is installed. Set link display var to return TRUWE or FALSE based on test
 				Template::set('gamecast_links',(@Modules::find('config/config.php','gamecast')) ? true : false);
 			}	
@@ -56,7 +58,7 @@ class LastSim extends Front_Controller {
         }
         Template::set('settings',$settings);
 		Template::set('teams',$this->teams_model->get_teams_array($league_id));
-		Template::set_view('lastsim/index');
+		//Template::set_view('lastsim/index');
 		Template::render();
 	}
 }
