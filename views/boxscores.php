@@ -5,7 +5,7 @@
 		<div style="width:100%;text-align:right;">
 		<p>
 		<?php
-			if (isset($teams) && sizeof($teams) > 0) {
+		if (isset($teams) && sizeof($teams) > 0) {
 			echo form_open();
 			echo form_label("Select Team:", "team_id");
 			echo '<select id="team_id" name="team_id">'."\n";
@@ -144,13 +144,13 @@
 		} // END for
 	} else {
 		$text = "<p><b>No recent games were found.</b></p>\n";
-	} // END if
+    }
 	print($text);
 	unset($text);
 	?>
-			</div>
-			<div class="column">
-			<h3>Upcoming Schedule</h3>
+        </div>
+        <div class="column">
+        <h3>Upcoming Schedule</h3>
 		<?php
 		if (isset($upcoming) && is_array($upcoming) && sizeof($upcoming) > 0) {
 			foreach($upcoming as $row) {
