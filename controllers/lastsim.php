@@ -50,7 +50,16 @@ class LastSim extends Front_Controller {
 				Template::set('upcoming',$this->sim_model->get_upcoming_games($league->current_date,$team_id));
 				Template::set('team_scores',$this->sim_model->get_situational_scoring($team_id,$league->league_id));
 				// TEST if Gamecast module is installed. Set link display var to return TRUWE or FALSE based on test
-				Template::set('gamecast_links',(@Modules::find('config/config.php','gamecast')) ? true : false);
+				$gamecast = false;
+                $modules = module_list(true);
+                foreach ($modules as $module) {
+                    if ($module == 'gamecast') {
+                        $gamecast = true;
+                        break;
+                    }
+                }
+                //$gamecast = @Modules::find('config/config.php','gamecast',modu) ? true : false)
+                Template::set('gamecast_links',$gamecast);
 			}	
 		}
 		if (!function_exists('form_open')) {
@@ -58,7 +67,6 @@ class LastSim extends Front_Controller {
         }
         Template::set('settings',$settings);
 		Template::set('teams',$this->teams_model->get_teams_array($league_id));
-		//Template::set_view('lastsim/index');
 		Template::render();
 	}
 }
