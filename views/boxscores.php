@@ -115,7 +115,7 @@
 			$text.=": <a href='".$report_path."box_scores/game_box_".$gid.".html'>Box Score</a>";
 			$text.=" | <a href='".$report_path."game_logs/log_".$gid.".html'>Game Log</a>\n";
 			if ($gamecast_links) {
-				$text.=" | ".anchor('#','Replay',array('id'=>$boxCount.'_'.$gid,'rel'=>'replay'))."\n";
+				$text.=" | Replay: ".anchor('#','Inline',array('id'=>'1_'.$boxCount.'_'.$gid,'rel'=>'replay'))." | ".anchor('#','New Window',array('id'=>'2_'.$boxCount.'_'.$gid,'rel'=>'replay'))."\n";
 			}
 			$text.="   </td>\n";
 			$text.="  </tr>\n";
@@ -143,7 +143,7 @@
 			$text.="  </tr>\n";
 			$text.=" </table>\n";
 			$text.=" </div>\n";
-			if ($gamecast_links && $settings['gamecast.view_type'] == "inline") {
+			if ($gamecast_links) {
 				$text.='<div id="gc_'.$boxCount.'" style="display:none;">'."\n</div>\n";
 			}
 			$boxCount++;
@@ -218,26 +218,26 @@
 			e.preventDefault();
 			var proceed = true,
 			args = this.id.split("_"), // index 0 = box count id, 1 = gamecast game id
-			gc_link = '<?php echo site_url() ?>/gamecast/index/'+args[1];
+			gc_link = '<?php echo site_url() ?>/gamecast/index/'+args[2];
 			if (gamerunning) {
 				proceed = confirm("There is already a game replay running. If you choose to continue, the previous game will be stopped and a new replay will be started. Do you wish to proceed?");
 			}
 			if (proceed) {
-			<?php if ($settings['gamecast.view_type'] == "inline") { ?>
 				if (gamerunning) {
-					$('#ifrm_'+gamerunning).remove();
-					$('#box_'+gamerunning).css('display','block');
-					$('#gc_'+gamerunning).css('display','none');
-					gamerunning = null;
+				if (args[0] == "1") { // INLINE
+						$('#ifrm_'+gamerunning).remove();
+						$('#box_'+gamerunning).css('display','block');
+						$('#gc_'+gamerunning).css('display','none');
+						gamerunning = null;
+					}
+					$('#gc_'+args[1]).append('<iframe id="ifrm_'+args[1]+'" style="width:470px;height:218px;border=none;" scrolling="no" />');
+					$('#ifrm_'+args[1]).attr('src', gc_link+'/2'); 
+					$('#box_'+args[1]).css('display','none');
+					$('#gc_'+args[1]).css('display','block');
+				} else {
+					var gcWin = window.open(gc_link+'/1','gamecast'+args[2],'width=465,height=550,scrolling=no,menu=no,status=yes,top=50,left=50,location=no,resize=yes');
 				}
-				$('#gc_'+args[0]).append('<iframe id="ifrm_'+args[0]+'" style="width:452px;height:212px;border=none;" />');
-				$('#ifrm_'+args[0]).attr('src', gc_link); 
-				$('#box_'+args[0]).css('display','none');
-				$('#gc_'+args[0]).css('display','block');
-			<?php } else { ?>
-				var gcWin = window.open(gc_link,'gamecast','width=465,height=550,scrolling=no,menu=no,status=yes,top=50,left=50,location=no,resize=yes');
-			<?php } ?>
-				gamerunning = args[1];
+				gamerunning = args[2];
 			}
 		});
         <?php } ?>
