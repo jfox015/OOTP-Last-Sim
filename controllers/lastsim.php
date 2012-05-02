@@ -15,8 +15,8 @@ class LastSim extends Front_Controller {
 	public function __construct() {
 		parent::__construct();
 		$this->load->model('LastSim_model', 'sim_model');
-		$this->load->model('league_manager/Teams_model', 'teams_model');
-		$this->load->model('league_manager/Leagues_model', 'leagues_model');
+		$this->load->model('ootp_web_toolkit/Teams_model', 'teams_model');
+		$this->load->model('ootp_web_toolkit/Leagues_model', 'leagues_model');
 	}
 	/**
 	 *	INDEX.
