@@ -7,6 +7,9 @@
  *	@version		0.1
  *
 */
+define('RANGE_GAME_ID_LIST', 0);
+define('RANGE_DATE_LIST', 1);
+define('RANGE_TEAM_LIST', 2);
 
 class LastSim_model extends MY_Model {
 
@@ -17,7 +20,7 @@ class LastSim_model extends MY_Model {
 	protected $date_format  = 'datetime';
 	protected $set_created  = false;
 	protected $set_modified = false;
-
+	
     protected $simLen = 1;
 	/**
 	 *	C'TOR
@@ -56,7 +59,7 @@ class LastSim_model extends MY_Model {
 		$oldprefix = $this->db->dbprefix;
         $this->db->dbprefix = '';
         $boxscores = array();
-		$this->db->select('game_id,played,home_team,away_team,games.date,innings,runs0,runs1,hits0,hits1,errors0,errors1,winning_pitcher,losing_pitcher,save_pitcher')
+		$this->db->select('game_id,played,home_team,away_team,games.date,games.time, innings,runs0,runs1,hits0,hits1,errors0,errors1,winning_pitcher,losing_pitcher,save_pitcher')
 				 ->where('played',1)
 				 ->where("DATEDIFF('".$lgdate."',games.date)<".$this->simLen);
                  //->limit(0,10);
@@ -65,6 +68,39 @@ class LastSim_model extends MY_Model {
 		}
 		$query = $this->db->order_by('date,time','asc')
 				 ->get($this->table);
+		//print($this->db->last_query()."<br />");
+        if ($query->num_rows() > 0) {
+			foreach($query->result_array() as $row) {
+				$row['inningScores'] = $this->getInningScores($row['game_id'],$row['innings']);
+				$row['pitcherInfo'] = $this->getPitcherInfo($row['winning_pitcher'],$row['losing_pitcher'],$row['save_pitcher']);
+				$row['batterInfo'] = $this->getHitterInfo($row['game_id']);
+				array_push($boxscores,$row);
+			} // END foreach
+		} // END if
+		$query->free_result();
+        $this->db->dbprefix = $oldprefix;
+        return $boxscores;
+	}
+	/**
+	 *	GET PLAYOFF BOX SCORES.
+	 *	Fetch Box scores for the given period.
+	 *	@param	$lgdate		Date/time	The current league date
+	 *	@param	$team_id	Int			The team to get the list of games for
+	 *	@return				Array 		Array of games
+	 *
+	 */
+	public function get_playoff_box_scores($league_id = 100, $home_team_id = null, $away_team_id = null) {
+
+		$oldprefix = $this->db->dbprefix;
+        $this->db->dbprefix = '';
+        $boxscores = array();
+		$this->db->select('game_id,played,home_team,away_team,games.date,games.time, innings,runs0,runs1,hits0,hits1,errors0,errors1,winning_pitcher,losing_pitcher,save_pitcher')
+				->where('game_type',3)
+				->where('league_id',$league_id)
+				->where('played',1)
+				->where('(home_team='.$home_team_id.' AND away_team='.$away_team_id.') OR (home_team='.$away_team_id.' AND away_team='.$home_team_id.')')
+				->order_by('date,time','asc');
+		$query = $this->db->get($this->table);
 		//print($this->db->last_query()."<br />");
         if ($query->num_rows() > 0) {
 			foreach($query->result_array() as $row) {
@@ -112,18 +148,51 @@ class LastSim_model extends MY_Model {
         return $upcoming;
 	}
 	/**
-	 *	GET UPCOMING GAMES.
-	 *	Retrieves a list of games that are coming up in the teams schedule.
+	 *	GET UPCOMING PLAYOFF GAMES.
+	 *	Retrieves a list of playoff games that are coming up in the teams schedule.
+	 *	@param	$lgdate		Date/time	The current league date
+	 *	@param	$team_id	Int			The team to get the scedule for
+	 *	@return				Array 		Array of games
+	 *
+	 */
+	public function get_upcoming_playoff_games($league_id = 100, $home_team_id = null, $away_team_id = null) {
+
+		$oldprefix = $this->db->dbprefix;
+        $this->db->dbprefix = '';
+        $upcoming = array();
+		$this->db->select('game_id,home_team,away_team,games.date,time')
+				->where('game_type',3)
+				->where('league_id',$league_id)
+				->where('played',0)
+                ->where('(home_team='.$home_team_id.' AND away_team='.$away_team_id.') OR (home_team='.$away_team_id.' AND away_team='.$home_team_id.')')
+                ->order_by('date,time','asc');
+		$query = $this->db->get($this->table);
+		
+		//print($this->db->last_query()."<br />");
+        if ($query->num_rows() > 0) {
+			foreach($query->result_array() as $row) {
+				array_push($upcoming,$row);
+			} // END foreach
+		} // END if
+		$query->free_result();
+        $this->db->dbprefix = $oldprefix;
+        return $upcoming;
+	}
+	/**
+	 *	GET SITUATIONAL SCORING.
+	 *	Retrieves a list of situatioanl records for the specified team.
 	 *	@param	$team_id	Int			The team to get the scedule for
 	 *	@param	$league_id	Int			The league ID
 	 *	@return				Array 		Array of games
 	 *
 	 */
-	public function get_situational_scoring($team_id = false, $league_id = 100) {
+	public function get_situational_scoring($team_id = false, $league_id = 100, $team_scores = false) {
+
 		if ($team_id === false) return false;
+		
 		$oldprefix = $this->db->dbprefix;
         $this->db->dbprefix = '';
-        $team_scores = array();
+        if ($team_scores === false) $team_scores = array();
 		
 		$this->db->select('game_id,home_team,away_team,runs0,runs1')
 				 ->where('game_type',0)
@@ -141,19 +210,19 @@ class LastSim_model extends MY_Model {
 				$aid=$row['away_team'];
 				if ($row['runs0']>$row['runs1'])
 				{
-					$team_scores[$aid]['w']=$team_scores[$aid]['w']+1;
-					$team_scores[$aid]['rw']=$team_scores[$aid]['rw']+1;
-					$team_scores[$hid]['l']=$team_scores[$hid]['l']+1;
-					$team_scores[$hid]['hl']=$team_scores[$hid]['hl']+1;
-					$team_scores[$aid]['wVs'][$hid]=$team_scores[$aid]['wVs'][$hid]+1;
+					$team_scores[$aid]['w']=(isset($team_scores[$aid]['w'])) ? $team_scores[$aid]['w']+1 : 1;
+					$team_scores[$aid]['rw']=(isset($team_scores[$aid]['rw'])) ? $team_scores[$aid]['rw']+1 : 1;
+					$team_scores[$hid]['l']=(isset($team_scores[$hid]['l'])) ? $team_scores[$hid]['l']+1 : 1;
+					$team_scores[$hid]['hl']=(isset($team_scores[$hid]['hl'])) ? $team_scores[$hid]['hl']+1 : 1;
+					$team_scores[$aid]['wVs'][$hid]=(isset($team_scores[$aid]['wVs'][$hid])) ? $team_scores[$aid]['wVs'][$hid]+1 : 1;
 				}
 				else
 				{
-					$team_scores[$aid]['l']=$team_scores[$aid]['l']+1;
-					$team_scores[$aid]['rl']=$team_scores[$aid]['rl']+1;
-					$team_scores[$hid]['w']=$team_scores[$hid]['w']+1;
-					$team_scores[$hid]['hw']=$team_scores[$hid]['hw']+1;
-					$team_scores[$hid]['wVs'][$aid]=$team_scores[$hid]['wVs'][$aid]+1;
+					$team_scores[$aid]['l']=(isset($team_scores[$aid]['l'])) ? $team_scores[$aid]['l']+1 : 1;
+					$team_scores[$aid]['rl']=(isset($team_scores[$aid]['rl'])) ? $team_scores[$aid]['rl']+1 : 1;
+					$team_scores[$hid]['w']=(isset($team_scores[$hid]['w'])) ? $team_scores[$hid]['w']+1 : 1;
+					$team_scores[$hid]['hw']=(isset($team_scores[$hid]['hw'])) ? $team_scores[$hid]['hw']+1 : 1;
+					$team_scores[$hid]['wVs'][$aid]=(isset($team_scores[$hid]['wVs'][$aid])) ? $team_scores[$hid]['wVs'][$aid]+1 : 1;
 				}
 			}
 		}
@@ -161,9 +230,262 @@ class LastSim_model extends MY_Model {
         $this->db->dbprefix = $oldprefix;
         return $team_scores;
 	}
+	/**
+	 * GET TOP INDIVIDUAL BATTING.
+	 *
+	 * Queries for a set of top offensive performances from a specified list of games for a league..
+	 *
+	 * @param	int		$league_id			League Id, 100 if not specified
+	 * @param	String	$gidList			Comma seperated list of game IDs
+	 * @return	Array						Ammended games array
+	 * @auuthor	Frank Esselink
+	 */
+    public function get_top_individual_batting($league_id = 100, $games = false, $gidList = false, $settings = false)
+	{
+		
+        if (!$this->use_prefix) $this->db->dbprefix = '';
+        $this->db->select('players_game_batting.player_id,game_id,first_name,last_name,h,d,t,hr,rbi,sb')
+            ->join('players', 'players.player_id = players_game_batting.player_id','left')
+            ->where('(hr>2 OR h>5 OR rbi>7 or sb>3 OR ((h-d-t-hr)>0 AND d>0 AND t>0 AND hr>0))')
+            ->where('players_game_batting.league_id', $league_id)
+            ->where_in('players_game_batting.game_id', $gidList);
+        $query = $this->db->get('players_game_batting');
+        if ($query->num_rows() > 0) {
+            foreach ($query->result_array() as $row) {
+                $gid = $row['game_id'];
+				$pid = $row['player_id'];
+				$fi = $row['first_name'];
+				$fi = $fi[0];
+				$name = $fi . ". " . $row['last_name'];
+				$h = $row['h'];
+				$d = $row['d'];
+				$t = $row['t'];
+				$hr = $row['hr'];
+				$s = $h - $d - $t - $hr;
+				$rbi = $row['rbi'];
+				$sb = $row['sb'];
+
+				if ($hr > 2) {
+					if (isset($games[$gid]['note']) && !empty($games[$gid]['note'])) { $games[$gid]['note'] . ", "; }
+					$games[$gid]['note'] .= '<a href="'.$settings['ootp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> belts $hr HR\'s';
+				}
+				if ($h > 5) {
+					if (isset($games[$gid]['note']) && !empty($games[$gid]['note'])) { $games[$gid]['note'] . ", "; }
+					$games[$gid]['note'] .= '<a href="'.$settings['ootp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> knocks $h hits';
+				}
+				if ($rbi > 7) {
+					if (isset($games[$gid]['note']) && !empty($games[$gid]['note'])) { $games[$gid]['note'] . ", "; }
+					$games[$gid]['note'] .= '<a href="'.$settings['ootp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> drives in $rbi';
+				}
+				if ($sb > 3) {
+					if (isset($games[$gid]['note']) && !empty($games[$gid]['note'])) { $games[$gid]['note'] . ", "; }
+					$games[$gid]['note'] .= '<a href="'.$settings['ootp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> steals $sb bases';
+				}
+				if (($s > 0) && ($d > 0) && ($t > 0) && ($hr > 0)) {
+					if (isset($games[$gid]['note']) && !empty($games[$gid]['note'])) { $games[$gid]['note'] . ", "; }
+					$games[$gid]['note'] .= '<a href="'.$settings['ootp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> hits for the cycle!';
+				}
+            }
+        }
+        $query->free_result();
+        if (!$this->use_prefix) $this->db->dbprefix = $this->dbprefix;
+        return $games;
+	}
+	
+	/**
+	 * GET TOP INDIVIDUAL Pitching.
+	 *
+	 * Queries for a set of top pitching performances from a specified list of games for a league..
+	 *
+	 * @param	int		$league_id			League Id, 100 if not specified
+	 * @param	String	$gidList			Comma seperated list of game IDs
+	 * @return	Array						Ammended games array
+	 * @auuthor	Frank Esselink
+	 */
+    public function get_top_individual_pitching($league_id = 100, $games = false, $gidList = false, $settings = false)
+	{
+		
+        if (!$this->use_prefix) $this->db->dbprefix = '';
+        $this->db->select('players_game_pitching_stats.player_id,game_id,first_name,last_name,k,(ip*3+ipf)/3 as ip,ha,cg,sho')
+            ->join('players', 'players.player_id = players_game_pitching_stats.player_id','left')
+            ->where('(k>14 OR ((ip*3+ipf)/3)>9 OR (ha=0 AND ((ip*3+ipf)/3)>7) OR (ha<3 AND cg=1 AND sho=1))')
+            ->where('players_game_pitching_stats.league_id', $league_id)
+            ->where_in('players_game_pitching_stats.game_id', $gidList);
+        $query = $this->db->get('players_game_pitching_stats');
+        if ($query->num_rows() > 0) {
+            foreach ($query->result_array() as $row) {
+				$gid = $row['game_id'];
+				$pid = $row['player_id'];
+				$fi = $row['first_name'];
+				$fi = $fi[0];
+				$name = $fi . ". " . $row['last_name'];
+				$k = $row['k'];
+				$ip = $row['ip'];
+				$ha = $row['ha'];
+				$cg = $row['cg'];
+				$sho = $row['sho'];
+				if (floor($ip) == $ip) 
+				{
+					$dispIP = round($ip, 0);
+				} else {
+					$dispIP = round(floor($ip), 0) . " " . round((3 * ($ip - floor($ip))), 0) . "/3";
+				}
+
+				if ($k > 14) 
+				{
+					if (isset($games[$gid]['note']) && !empty($games[$gid]['note'])) { $games[$gid]['note'] . ", "; }
+					$games[$gid]['note'] .= '<a href="'.$settings['ootp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> strikes out '.$k;
+				}
+				if ($ip > 9) {
+					if (isset($games[$gid]['note']) && !empty($games[$gid]['note'])) { $games[$gid]['note'] . ", "; }
+					$games[$gid]['note'] .= '<a href="'.$settings['ootp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> goes '.$dispIP.' innings';
+				}
+				if (($ha == 0) && ($ip > 7)) {
+					if ($cg == 1) {
+						if (isset($games[$gid]['note']) && !empty($games[$gid]['note'])) { $games[$gid]['note'] . ", "; }
+						$games[$gid]['note'] .= '<a href="'.$settings['ootp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> pitches a no-hitter';
+					}
+					else {
+						if (isset($games[$gid]['note']) && !empty($games[$gid]['note'])) { $games[$gid]['note'] . ", "; }
+						$games[$gid]['note'] .= '<a href="'.$settings['ootp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> fails to allow a hit';
+					}
+				}
+				if (($ha < 3) && ($cg == 1) && ($sho == 1) && ($ha != 0)) {
+					if (isset($games[$gid]['note']) && !empty($games[$gid]['note'])) { $games[$gid]['note'] . ", "; }
+					$games[$gid]['note'] .= '<a href="'.$settings['ootp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> pitches a '.$ha.'-hit shutout';
+				}
+            }
+        }
+        $query->free_result();
+        if (!$this->use_prefix) $this->db->dbprefix = $this->dbprefix;
+        return $games;
+	}
+	/**
+	 * GET TEAM SITUATIONAL RECORDS.
+	 *
+	 * Queries for the home and road w/l breakdown for the selected teams.
+	 *
+	 * @param	int		$league_id			League Id, 100 if not specified
+	 * @param	Array	$teams				Array of team ifnormation
+	 * @param	int		$home_team_id		Home team ID
+	 * @param	int		$away_team_id		Away team ID
+	 * @return	Array						Ammended teams array
+	 * @auuthor	Frank Esselink
+	 */
+    public function get_team_situational_records($league_id = 100, $teams = false, $home_team_id = -1, $away_team_id = -1) 
+	{
+		
+		if ($teams !== false && is_array($teams) && count($teams)) {
+		
+			if (!$this->use_prefix) $this->db->dbprefix = '';
+			$this->db->select('game_id,home_team,away_team,runs0,runs1')
+				->where('league_id', $league_id)
+				->where('game_type', 0)
+				->where('played', 1)
+				->where('(home_team = '.$home_team_id.' OR home_team = '.$away_team_id.' OR away_team = '.$away_team_id.' OR away_team = '.$home_team_id.')');
+			$query = $this->db->get('games');
+			if ($query->num_rows() > 0) {
+				foreach ($query->result_array() as $row) {
+					$hid = $row['home_team'];
+					$aid = $row['away_team'];
+					if ($row['runs0'] > $row['runs1']) {
+						$teams[$aid]['rw'] = isset($teams[$aid]['rw']) ? $teams[$aid]['rw'] + 1 : 1;
+						$teams[$hid]['hl'] = isset($teams[$hid]['hl']) ? $teams[$hid]['hl'] + 1 : 1;
+					}
+					else {
+						$teams[$aid]['rl'] = isset($teams[$aid]['rl']) ? $teams[$aid]['rl'] + 1 : 1;
+						$teams[$hid]['hw'] = isset($teams[$hid]['hw']) ? $teams[$hid]['hw'] + 1 : 1;
+					}
+				}
+			}
+			$query->free_result();
+			if (!$this->use_prefix) $this->db->dbprefix = $this->dbprefix;
+		}
+		return $teams;
+	}
+	
+	public function get_top_batters_by_gamelist($gidList = false, $pcnt = false)
+	{
+		$performers = array();
+		if ($gidList !== false) 
+		{
+			$performers = $this->get_top_performances(0, RANGE_GAME_ID_LIST, $gidList, false, $pcnt);
+		}
+		return $performers;
+	}
+	
+	public function get_top_pitchers_by_gamelist($gidList = false, $pcnt = false)
+	{
+		$performers = array();
+		if ($gidList !== false) 
+		{
+			$performers = $this->get_top_performances(1, RANGE_GAME_ID_LIST, $gidList, false, $pcnt);
+		}
+		return $performers;
+	}
+			
 	/*----------------------------------------------------------------------
 	/	PROTECTED FUNCTIONS
 	/---------------------------------------------------------------------*/
+	
+	protected function get_top_performances($player_type = 0, $rangeType = false, $rangeVal0 = false, $rangeVal1 = false, $pcnt = false, $limit = 5, $offset = 0)
+	{
+		
+		$performers = array();
+		if ($pcnt === false) $pcnt = 0;
+		switch ($player_type) {
+			case 0:
+				$select = 'players.player_id,players.first_name,players.last_name,players.team_id,sum(h) as h,sum(hr) as hr,sum(rbi) as rbi,sum(r) as r,sum(sb) as sb,(sum(h)/sum(ab)) as avg,(sum(h)+sum(bb)+sum(hp))/(sum(ab)+sum(bb)+sum(hp)+sum(sf)) as obp,(sum(h)+sum(d)+2*sum(t)+3*sum(hr))/sum(ab) as slg,if(SUM(pa)<(2*'.$pcnt.'),-99,(0.47*(sum(h)-sum(d)-sum(t)-sum(hr)) + .78*sum(d) + 1.09*sum(t) + 1.4*sum(hr) + .33*(sum(bb)-sum(hp)) + .3*sum(sb) + .5*(-.52*sum(cs) - .26*(sum(ab)-sum(h)-sum(gdp)) - .72*sum(gdp)))) as lw';
+				$table = 'players_game_batting';
+				$order_by = 'lw';
+				break;
+			case 1:
+				$select = 'players.player_id,players.first_name,players.last_name,players.team_id,((SUM(ip)*3+SUM(ipf))/3) as ip,sum(w) as w,sum(l) as l,sum(s) as sv,sum(k) as k,9*sum(er)/((SUM(ip)*3+SUM(ipf))/3) as era,(sum(bb)+sum(ha)+sum(hp))/((SUM(ip)*3+SUM(ipf))/3) as whip,sum(ha)/sum(ab) as oavg,(((sum(ha)+sum(bb)+sum(hp))*(0.89*(1.255*(sum(ha)-sum(hra))+4*sum(hra))+0.56*(sum(bb)+sum(hp)-sum(iw))))/(sum(bf)*((SUM(ip)*3+SUM(ipf))/3)))*9*0.75 as erc,if(SUM(ip)<('.$pcnt.'-1),-99,3*((SUM(ip)*3+SUM(ipf))/3)+4*sum(w)-4*sum(l)+5*sum(s)+sum(k)+.5*(-2*sum(ha)-2*sum(bb))) as score';
+				$table = 'players_game_pitching_stats';
+				$order_by = 'score';
+				break;
+		}
+		if ($rangeType !== false && $rangeVal0 !== false) 
+		{
+			if (!$this->use_prefix) $this->db->dbprefix = '';
+			$this->db->select($select, false)
+					 ->join('players', 'players.player_id = '.$table.'.player_id','right outer');
+			switch ($rangeType) {
+				case RANGE_GAME_ID_LIST:
+					$this->db->where_in('game_id', $rangeVal0);
+					break;
+				case RANGE_DATE_LIST:
+					$this->db->where("DATEDIFF('".$rangeVal0."',games.date)<=0")
+							 ->where("DATEDIFF('".$rangeVal0."',games.date)>-".($this->simLen-1));
+					break;
+				case RANGE_TEAM_LIST:
+					$this->db->where_in('players.team_id', $rangeVal0);
+					break;
+			}
+			$this->db->group_by('player_id')
+					 ->order_by($order_by.', last_name, first_name', 'desc');
+			// LIMITS AND OFFSET
+			if (isset($limit) && isset($offset))
+			{
+				if ($limit != -1 && $offset == 0)
+				{
+					$this->limit($limit);
+				}
+				else if ($limit != -1 && $offset > 0)
+				{
+					$this->db->limit($offset,$limit);
+				}
+			} // END if
+			
+			$query = $this->db->get($table);
+			if ($query->num_rows() > 0) {
+				$performers = $query->result_array();
+			}
+			$query->free_result();
+			if (!$this->use_prefix) $this->db->dbprefix = $this->dbprefix;
+		}
+		return $performers;
+	}
 	
 	/**
 	 *	GET INNING SCORES.
@@ -235,6 +557,4 @@ class LastSim_model extends MY_Model {
 		$query->free_result();
 		return $batterStats;
 	}
-	
-	
 }

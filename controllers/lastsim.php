@@ -46,17 +46,34 @@ class LastSim extends Front_Controller {
 			$league = $this->leagues_model->find($league_id);
             if (isset($league) && $league->league_id != NULL) {
 				$this->sim_model->init($settings['ootp.auto_sim_length'],$settings['ootp.calc_length'],$settings['ootp.sim_length']);
-				Template::set('boxscores',$this->sim_model->get_box_scores($league->current_date,$team_id));
-				Template::set('upcoming',$this->sim_model->get_upcoming_games($league->current_date,$team_id));
-				Template::set('team_scores',$this->sim_model->get_situational_scoring($team_id,$league->league_id));
-				Template::set('gamecast_links',in_array('gamecast',module_list(true)));
+                // ASSURE PATH COMPLIANCE TO OOPT VERSION
+                $this->load->helper('open_sports_toolkit/general');
+                $settings = get_asset_path($settings);
+
+                $teams = $this->teams_model->get_teams_array($league_id);
+
+                $data = array();
+				$data['boxscores'] = $this->sim_model->get_box_scores($league->current_date,$team_id);
+				$data['gamecast_links'] = in_array('gamecast',module_list(true));
+				$data['settings'] = $settings;
+				$data['teams'] = $teams;
+				Template::set('boxscores',$this->view->load('lastsim/loop_boxscores',$data,true));
+				unlink($data);
+				
+				$data = array();
+                $data['settings'] = $settings;
+                $data['teams'] = $teams;
+                $data['team_scores'] = $this->sim_model->get_situational_scoring($team_id,$league->league_id);
+				$data['upcoming'] = $this->sim_model->get_upcoming_games($league->current_date,$team_id);
+				Template::set('upcoming',$this->view->load('lastsim/loop_upcoming',$data,true));
+				
+				Template::set('scripts',$this->load->view('lastsim/boxscores_js',null,true));
 			}	
 		}
 		if (!function_exists('form_open')) {
             $this->load->helper('form');
         }
-        Template::set('settings',$settings);
-		Template::set('teams',$this->teams_model->get_teams_array($league_id));
+
 		Template::render();
 	}
 }
