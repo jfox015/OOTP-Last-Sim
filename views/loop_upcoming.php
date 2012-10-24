@@ -1,12 +1,15 @@
 			<?php
 			if (isset($upcoming) && is_array($upcoming) && sizeof($upcoming) > 0) {
 				foreach($upcoming as $row) {
-					unset($date);
-					$date =	strtotime($row['date']);
+					$gid = $row['game_id'];
+					$hid=$row['home_team'];
+					$hname=$teams[$hid]['name'];
+					$aid=$row['away_team'];
+					$aname=$teams[$aid]['name'];
 					?>
 					<table cellspacing="0" cellpadding="0" style="border:0px;width:400px;margin:10px;">
 					<tr>
-						<td class="hl"><?php echo(date("M j, Y", $date));?></td>
+						<td class="hl"><?php echo(date("M j, Y", strtotime($row['date']))." ".format_time($row['time']));?></td>
 					</tr>
 					<tr>
 						<td>
@@ -20,7 +23,7 @@
 							<td valign="top" style="padding:0px;margin:0px">
 							<table cellspacing"0" cellpadding="1" style="width:356px;margin:0px;border:0px">
 							<tr>
-								<td class="hl" colspan="2"><?php echo(date("g:i a",$date)); ?></td>
+								<td class="hl" colspan="2"><?php echo(format_time($row['time'])); ?></td>
 							</tr>
 							<tr>
 								<td class='gl'><a href="<?php echo($settings['ootp.asset_url'].'teams/team_'.$aid); ?>.html"><?php echo($teams[$aid]['name']); ?></a></td>

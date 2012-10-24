@@ -5,25 +5,25 @@
 				$stats = array('AVG','R','H','HR','RBI','SB','OPS');
 				break;
 			case 1:
-				$type = 'Pithers';
+				$type = 'Pitchers';
 				$stats = array('W','L','S','IP','ERA','K','WHIP','OAVG');
 				break;
 		}
 		?>
 		<div class="tablebox">
-		<table cellpadding="0" cellspacing="0" border="0">
+		<table cellpadding="5" cellspacing="2" border="0">
 		<tr class="h1_l">
 			<td><?php echo($type); ?></td>
 		</tr>
 		<tr>
 			<td>
-			<table class="sortable" width="100%">
+			<table class="sortable" width="100%" cellpadding="2" cellspacing="2">
 			<thead>
-			<tr class="hsn2">
+			<tr class="headline_other">
 				<td class=""hsn2_l">Player</td>
 				<?php
 				foreach($stats as $stat) {
-					echo('\t\t<td>'.$stat.'</td>'."\n");
+					echo("\t\t".'<td>'.$stat.'</td>'."\n");
 				}
 				?>
 			</tr>
@@ -37,10 +37,10 @@
 				$tid = $row['team_id'];
 				?>
 			<tr class="s<?php echo($cls); ?>">
-				<td class="s<?php echo($cls);?>_l"><a href="<?php echo($settings['ootp.asset_url']);?>players/player_<?php echo($row['player_id']);?>.html"><?php echo($row['first_name'] . " " . $row['last_name']);?></a>, 
+				<td><a href="<?php echo($settings['ootp.asset_url']);?>players/player_<?php echo($row['player_id']);?>.html"><?php echo($row['first_name'] . " " . $row['last_name']);?></a>,
 				<a href="<?php echo($settings['ootp.asset_url']);?>teams/team_<?php echo($tid);?>.html"><?php echo($teams[$tid]['abbr']); ?></a></td>
 				<?php
-				foreach($stats as $stat => $db) 
+				foreach($stats as $stat)
 				{
 					$val = $row[strtolower($stat)];
 					if ($player_type == 0) 
@@ -84,7 +84,7 @@
 								break;
 						}
 					}
-					echo('\t\t<td>'.$val.'</td>'."\n");
+					echo("\t\t".'<td>'.$val.'</td>'."\n");
 				}
 				?>
 			</tr>

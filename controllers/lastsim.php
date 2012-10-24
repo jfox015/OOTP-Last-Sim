@@ -45,7 +45,7 @@ class LastSim extends Front_Controller {
 		if (isset($team_id) && !empty($team_id) && $team_id !== NULL) {
 			$league = $this->leagues_model->find($league_id);
             if (isset($league) && $league->league_id != NULL) {
-				$this->sim_model->init($settings['ootp.auto_sim_length'],$settings['ootp.calc_length'],$settings['ootp.sim_length']);
+				$this->sim_model->init($settings['ootp.calc_length'],$settings['ootp.auto_sim_length'],(isset($settings['ootp.sim_length']) && !empty($settings['ootp.sim_length']) ? $settings['ootp.sim_length'] : false));
                 // ASSURE PATH COMPLIANCE TO OOPT VERSION
                 $this->load->helper('open_sports_toolkit/general');
                 $settings = get_asset_path($settings);
@@ -53,19 +53,19 @@ class LastSim extends Front_Controller {
                 $teams = $this->teams_model->get_teams_array($league_id);
 
                 $data = array();
-				$data['boxscores'] = $this->sim_model->get_box_scores($league->current_date,$team_id);
+				$data['boxscores'] = $this->sim_model->get_box_scores($league->current_date,$team_id, $settings, $league_id);
 				$data['gamecast_links'] = in_array('gamecast',module_list(true));
 				$data['settings'] = $settings;
 				$data['teams'] = $teams;
-				Template::set('boxscores',$this->view->load('lastsim/loop_boxscores',$data,true));
-				unlink($data);
+				Template::set('boxscores',$this->load->view('lastsim/loop_boxscores',$data,true));
+				unset($data);
 				
 				$data = array();
                 $data['settings'] = $settings;
                 $data['teams'] = $teams;
                 $data['team_scores'] = $this->sim_model->get_situational_scoring($team_id,$league->league_id);
-				$data['upcoming'] = $this->sim_model->get_upcoming_games($league->current_date,$team_id);
-				Template::set('upcoming',$this->view->load('lastsim/loop_upcoming',$data,true));
+				$data['upcoming'] = $this->sim_model->get_upcoming_games($league->current_date,$team_id, $settings);
+				Template::set('upcoming',$this->load->view('lastsim/loop_upcoming',$data,true));
 				
 				Template::set('scripts',$this->load->view('lastsim/boxscores_js',null,true));
 			}	

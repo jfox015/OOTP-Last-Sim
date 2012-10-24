@@ -75,6 +75,13 @@
 						$hrtxt="HR - ".$hrdata[$aid]." ".$hrdata[$hid];
 					}
 				}
+				// GAME NOTES
+				if (isset($grow['notes']) && !empty($grow['notes']))
+				{
+					$gnote=$grow['notes'];
+					$gnote=trim($gnote,", ");
+					$gnote="<br />Notes: ".$gnote;
+				}
 				unset($gdate);
 				
 				/*---------------------------------

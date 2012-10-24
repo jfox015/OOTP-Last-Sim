@@ -21,14 +21,21 @@ class LastSim_model extends MY_Model {
 	protected $set_created  = false;
 	protected $set_modified = false;
 	
-    protected $simLen = 1;
+    protected $simLen = 7;
+	
+	protected $dbprefix = '';
+    protected $use_prefix = false;
+
 	/**
 	 *	C'TOR
 	 *	Creates a new instance of LastSim_model
 	 */
 	public function __construct() {
 		parent::__construct();
-	}
+		// Since this model doesn't extend the base model in the open sports toolkit, we do this manually
+        $this->dbprefix = $this->db->dbprefix;
+        $this->use_prefix = ($this->settings_lib->item('ootp.use_db_prefix') == 1) ? true : false;
+    }
 	
 	/*----------------------------------------------------------------------
 	/	PUBLIC FUNCTIONS
@@ -39,9 +46,9 @@ class LastSim_model extends MY_Model {
 	 *	Initalizes the model for queries.
 	 *
 	 */
-	public function init($calcLength = 0, $autoSimLength = '', $simLen = 7) {
+	public function init($calcLength = 0, $autoSimLength = '', $simLen = false) {
 		if ($autoSimLength==1) {
-			$this->simLen=(($calcLength != 0) ? $calcLength : $simLen);
+			$this->simLen =(($calcLength != 0) ? $calcLength : (($simLen !== false) ? $simLen : $this->simLen));
 		} else {
 			$this->simLen=$simLen;
 		}
@@ -54,7 +61,7 @@ class LastSim_model extends MY_Model {
 	 *	@return				Array 		Array of games
 	 *
 	 */
-	public function get_box_scores($lgdate = false, $team_id = false) {
+	public function get_box_scores($lgdate = false, $team_id = false, $settings = false, $league_id = 100) {
 		if ($lgdate === false) return false;
 		$oldprefix = $this->db->dbprefix;
         $this->db->dbprefix = '';
@@ -74,6 +81,7 @@ class LastSim_model extends MY_Model {
 				$row['inningScores'] = $this->getInningScores($row['game_id'],$row['innings']);
 				$row['pitcherInfo'] = $this->getPitcherInfo($row['winning_pitcher'],$row['losing_pitcher'],$row['save_pitcher']);
 				$row['batterInfo'] = $this->getHitterInfo($row['game_id']);
+				$row['notes'] = $this->get_notes_pitching($row['game_id'], $settings, $league_id, $this->get_notes_batting($row['game_id'], $settings, $league_id));
 				array_push($boxscores,$row);
 			} // END foreach
 		} // END if
@@ -89,25 +97,28 @@ class LastSim_model extends MY_Model {
 	 *	@return				Array 		Array of games
 	 *
 	 */
-	public function get_playoff_box_scores($league_id = 100, $home_team_id = null, $away_team_id = null) {
+	public function get_playoff_box_scores($league_id = 100, $home_team_id = null, $away_team_id = null, $settings = false) {
 
 		$oldprefix = $this->db->dbprefix;
         $this->db->dbprefix = '';
         $boxscores = array();
-		$this->db->select('game_id,played,home_team,away_team,games.date,games.time, innings,runs0,runs1,hits0,hits1,errors0,errors1,winning_pitcher,losing_pitcher,save_pitcher')
+		$this->db->select('game_id,game_type,played,home_team,away_team,games.date,games.time, innings,runs0,runs1,hits0,hits1,errors0,errors1,winning_pitcher,losing_pitcher,save_pitcher')
 				->where('game_type',3)
 				->where('league_id',$league_id)
 				->where('played',1)
-				->where('(home_team='.$home_team_id.' AND away_team='.$away_team_id.') OR (home_team='.$away_team_id.' AND away_team='.$home_team_id.')')
+				->where('((home_team='.$home_team_id.' AND away_team='.$away_team_id.') OR (home_team='.$away_team_id.' AND away_team='.$home_team_id.'))')
 				->order_by('date,time','asc');
 		$query = $this->db->get($this->table);
 		//print($this->db->last_query()."<br />");
         if ($query->num_rows() > 0) {
 			foreach($query->result_array() as $row) {
-				$row['inningScores'] = $this->getInningScores($row['game_id'],$row['innings']);
-				$row['pitcherInfo'] = $this->getPitcherInfo($row['winning_pitcher'],$row['losing_pitcher'],$row['save_pitcher']);
-				$row['batterInfo'] = $this->getHitterInfo($row['game_id']);
-				array_push($boxscores,$row);
+				if ($row['game_type'] == 3) {
+                    $row['inningScores'] = $this->getInningScores($row['game_id'],$row['innings']);
+                    $row['pitcherInfo'] = $this->getPitcherInfo($row['winning_pitcher'],$row['losing_pitcher'],$row['save_pitcher']);
+                    $row['batterInfo'] = $this->getHitterInfo($row['game_id']);
+                    $row['notes'] = $this->get_notes_pitching($row['game_id'], $settings, $league_id, $this->get_notes_batting($row['game_id'], $settings, $league_id));
+                    array_push($boxscores,$row);
+                }
 			} // END foreach
 		} // END if
 		$query->free_result();
@@ -127,7 +138,7 @@ class LastSim_model extends MY_Model {
 		$oldprefix = $this->db->dbprefix;
         $this->db->dbprefix = '';
         $upcoming = array();
-		$this->db->select('game_id,home_team,away_team,games.date,time')
+		$this->db->select('game_id,home_team,away_team,date,time')
 				 ->where('played',0)
 				 ->where("DATEDIFF('".$lgdate."',games.date)<=0")
 				 ->where("DATEDIFF('".$lgdate."',games.date)>-".($this->simLen-1));
@@ -135,8 +146,8 @@ class LastSim_model extends MY_Model {
 		if ($team_id !== false) {
 			$this->db->where("(home_team=".$team_id." OR away_team=".$team_id.")");
 		}
-		$query = $this->db->order_by('date,time','asc')
-				 ->get($this->table);
+		$this->db->order_by('date,time','asc');
+		$query = $this->db->get($this->table);
 		//print($this->db->last_query()."<br />");
         if ($query->num_rows() > 0) {
 			foreach($query->result_array() as $row) {
@@ -160,14 +171,13 @@ class LastSim_model extends MY_Model {
 		$oldprefix = $this->db->dbprefix;
         $this->db->dbprefix = '';
         $upcoming = array();
-		$this->db->select('game_id,home_team,away_team,games.date,time')
+		$this->db->select('game_id,home_team,away_team,date,time')
 				->where('game_type',3)
 				->where('league_id',$league_id)
 				->where('played',0)
-                ->where('(home_team='.$home_team_id.' AND away_team='.$away_team_id.') OR (home_team='.$away_team_id.' AND away_team='.$home_team_id.')')
+                ->where('((home_team='.$home_team_id.' AND away_team='.$away_team_id.') OR (home_team='.$away_team_id.' AND away_team='.$home_team_id.'))')
                 ->order_by('date,time','asc');
 		$query = $this->db->get($this->table);
-		
 		//print($this->db->last_query()."<br />");
         if ($query->num_rows() > 0) {
 			foreach($query->result_array() as $row) {
@@ -231,7 +241,7 @@ class LastSim_model extends MY_Model {
         return $team_scores;
 	}
 	/**
-	 * GET TOP INDIVIDUAL BATTING.
+	 * GET NOTES BATTING.
 	 *
 	 * Queries for a set of top offensive performances from a specified list of games for a league..
 	 *
@@ -240,60 +250,62 @@ class LastSim_model extends MY_Model {
 	 * @return	Array						Ammended games array
 	 * @auuthor	Frank Esselink
 	 */
-    public function get_top_individual_batting($league_id = 100, $games = false, $gidList = false, $settings = false)
+    public function get_notes_batting($game_id = false, $settings = false, $league_id = 100, $notes = false)
 	{
 		
-        if (!$this->use_prefix) $this->db->dbprefix = '';
+        if ($notes === false) { $notes = ''; }
+		if (!$this->use_prefix) $this->db->dbprefix = '';
         $this->db->select('players_game_batting.player_id,game_id,first_name,last_name,h,d,t,hr,rbi,sb')
             ->join('players', 'players.player_id = players_game_batting.player_id','left')
             ->where('(hr>2 OR h>5 OR rbi>7 or sb>3 OR ((h-d-t-hr)>0 AND d>0 AND t>0 AND hr>0))')
             ->where('players_game_batting.league_id', $league_id)
-            ->where_in('players_game_batting.game_id', $gidList);
+            ->where('players_game_batting.game_id', $game_id);
         $query = $this->db->get('players_game_batting');
         if ($query->num_rows() > 0) {
-            foreach ($query->result_array() as $row) {
-                $gid = $row['game_id'];
-				$pid = $row['player_id'];
-				$fi = $row['first_name'];
-				$fi = $fi[0];
-				$name = $fi . ". " . $row['last_name'];
-				$h = $row['h'];
-				$d = $row['d'];
-				$t = $row['t'];
-				$hr = $row['hr'];
-				$s = $h - $d - $t - $hr;
-				$rbi = $row['rbi'];
-				$sb = $row['sb'];
+            
+			$row = $query->row_array();
+                
+			$gid = $row['game_id'];
+			$pid = $row['player_id'];
+			$fi = $row['first_name'];
+			$fi = $fi[0];
+			$name = $fi . ". " . $row['last_name'];
+			$h = $row['h'];
+			$d = $row['d'];
+			$t = $row['t'];
+			$hr = $row['hr'];
+			$s = $h - $d - $t - $hr;
+			$rbi = $row['rbi'];
+			$sb = $row['sb'];
 
-				if ($hr > 2) {
-					if (isset($games[$gid]['note']) && !empty($games[$gid]['note'])) { $games[$gid]['note'] . ", "; }
-					$games[$gid]['note'] .= '<a href="'.$settings['ootp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> belts $hr HR\'s';
-				}
-				if ($h > 5) {
-					if (isset($games[$gid]['note']) && !empty($games[$gid]['note'])) { $games[$gid]['note'] . ", "; }
-					$games[$gid]['note'] .= '<a href="'.$settings['ootp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> knocks $h hits';
-				}
-				if ($rbi > 7) {
-					if (isset($games[$gid]['note']) && !empty($games[$gid]['note'])) { $games[$gid]['note'] . ", "; }
-					$games[$gid]['note'] .= '<a href="'.$settings['ootp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> drives in $rbi';
-				}
-				if ($sb > 3) {
-					if (isset($games[$gid]['note']) && !empty($games[$gid]['note'])) { $games[$gid]['note'] . ", "; }
-					$games[$gid]['note'] .= '<a href="'.$settings['ootp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> steals $sb bases';
-				}
-				if (($s > 0) && ($d > 0) && ($t > 0) && ($hr > 0)) {
-					if (isset($games[$gid]['note']) && !empty($games[$gid]['note'])) { $games[$gid]['note'] . ", "; }
-					$games[$gid]['note'] .= '<a href="'.$settings['ootp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> hits for the cycle!';
-				}
-            }
+			if ($hr > 2) {
+				if (!empty($notes)) { $notes .= ", "; }
+				$notes .= '<a href="'.$settings['ootp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> belts $hr HR\'s';
+			}
+			if ($h > 5) {
+				if (!empty($notes)) { $notes .= ", "; }
+				$notes .= '<a href="'.$settings['ootp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> smacks $h hits';
+			}
+			if ($rbi > 7) {
+				if (!empty($notes)) { $notes .= ", "; }
+				$notes .= '<a href="'.$settings['ootp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> drives in $rbi';
+			}
+			if ($sb > 3) {
+				if (!empty($notes)) { $notes .= ", "; }
+				$notes .= '<a href="'.$settings['ootp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> steals $sb bases';
+			}
+			if (($s > 0) && ($d > 0) && ($t > 0) && ($hr > 0)) {
+				if (!empty($notes)) { $notes .= ", "; }
+				$notes .= '<a href="'.$settings['ootp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> hits for the cycle!';
+			}
         }
         $query->free_result();
         if (!$this->use_prefix) $this->db->dbprefix = $this->dbprefix;
-        return $games;
+        return $notes;
 	}
 	
 	/**
-	 * GET TOP INDIVIDUAL Pitching.
+	 * GET NOTES Pitching.
 	 *
 	 * Queries for a set of top pitching performances from a specified list of games for a league..
 	 *
@@ -302,63 +314,64 @@ class LastSim_model extends MY_Model {
 	 * @return	Array						Ammended games array
 	 * @auuthor	Frank Esselink
 	 */
-    public function get_top_individual_pitching($league_id = 100, $games = false, $gidList = false, $settings = false)
+    public function get_notes_pitching($game_id = false, $settings = false, $league_id = 100)
 	{
 		
-        if (!$this->use_prefix) $this->db->dbprefix = '';
+        $notes = '';
+		if (!$this->use_prefix) $this->db->dbprefix = '';
         $this->db->select('players_game_pitching_stats.player_id,game_id,first_name,last_name,k,(ip*3+ipf)/3 as ip,ha,cg,sho')
             ->join('players', 'players.player_id = players_game_pitching_stats.player_id','left')
             ->where('(k>14 OR ((ip*3+ipf)/3)>9 OR (ha=0 AND ((ip*3+ipf)/3)>7) OR (ha<3 AND cg=1 AND sho=1))')
             ->where('players_game_pitching_stats.league_id', $league_id)
-            ->where_in('players_game_pitching_stats.game_id', $gidList);
+            ->where('players_game_pitching_stats.game_id', $game_id);
         $query = $this->db->get('players_game_pitching_stats');
         if ($query->num_rows() > 0) {
-            foreach ($query->result_array() as $row) {
-				$gid = $row['game_id'];
-				$pid = $row['player_id'];
-				$fi = $row['first_name'];
-				$fi = $fi[0];
-				$name = $fi . ". " . $row['last_name'];
-				$k = $row['k'];
-				$ip = $row['ip'];
-				$ha = $row['ha'];
-				$cg = $row['cg'];
-				$sho = $row['sho'];
-				if (floor($ip) == $ip) 
-				{
-					$dispIP = round($ip, 0);
-				} else {
-					$dispIP = round(floor($ip), 0) . " " . round((3 * ($ip - floor($ip))), 0) . "/3";
-				}
+            $row = $query->row_array();
 
-				if ($k > 14) 
-				{
-					if (isset($games[$gid]['note']) && !empty($games[$gid]['note'])) { $games[$gid]['note'] . ", "; }
-					$games[$gid]['note'] .= '<a href="'.$settings['ootp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> strikes out '.$k;
+			$gid = $row['game_id'];
+			$pid = $row['player_id'];
+			$fi = $row['first_name'];
+			$fi = $fi[0];
+			$name = $fi . ". " . $row['last_name'];
+			$k = $row['k'];
+			$ip = $row['ip'];
+			$ha = $row['ha'];
+			$cg = $row['cg'];
+			$sho = $row['sho'];
+			if (floor($ip) == $ip) 
+			{
+				$dispIP = round($ip, 0);
+			} else {
+				$dispIP = round(floor($ip), 0) . " " . round((3 * ($ip - floor($ip))), 0) . "/3";
+			}
+
+			if ($k > 14) 
+			{
+				if (!empty($notes)) { $notes .= ", "; }
+				$notes .= '<a href="'.$settings['ootp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> strikes out '.$k;
+			}
+			if ($ip > 9) {
+				if (!empty($notes)) { $notes .= ", "; }
+				$notes .= '<a href="'.$settings['ootp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> goes '.$dispIP.' innings';
+			}
+			if (($ha == 0) && ($ip > 7)) {
+				if ($cg == 1) {
+					if (!empty($notes)) { $notes .= ", "; }
+					$notes .= '<a href="'.$settings['ootp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> pitches a no-hitter';
 				}
-				if ($ip > 9) {
-					if (isset($games[$gid]['note']) && !empty($games[$gid]['note'])) { $games[$gid]['note'] . ", "; }
-					$games[$gid]['note'] .= '<a href="'.$settings['ootp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> goes '.$dispIP.' innings';
+				else {
+					if (!empty($notes)) { $notes .= ", "; }
+					$notes .= '<a href="'.$settings['ootp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> fails to allow a hit';
 				}
-				if (($ha == 0) && ($ip > 7)) {
-					if ($cg == 1) {
-						if (isset($games[$gid]['note']) && !empty($games[$gid]['note'])) { $games[$gid]['note'] . ", "; }
-						$games[$gid]['note'] .= '<a href="'.$settings['ootp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> pitches a no-hitter';
-					}
-					else {
-						if (isset($games[$gid]['note']) && !empty($games[$gid]['note'])) { $games[$gid]['note'] . ", "; }
-						$games[$gid]['note'] .= '<a href="'.$settings['ootp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> fails to allow a hit';
-					}
-				}
-				if (($ha < 3) && ($cg == 1) && ($sho == 1) && ($ha != 0)) {
-					if (isset($games[$gid]['note']) && !empty($games[$gid]['note'])) { $games[$gid]['note'] . ", "; }
-					$games[$gid]['note'] .= '<a href="'.$settings['ootp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> pitches a '.$ha.'-hit shutout';
-				}
-            }
+			}
+			if (($ha < 3) && ($cg == 1) && ($sho == 1) && ($ha != 0)) {
+				if (!empty($notes)) { $notes .= ", "; }
+				$notes .= '<a href="'.$settings['ootp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> pitches a '.$ha.'-hit shutout';
+			}
         }
         $query->free_result();
         if (!$this->use_prefix) $this->db->dbprefix = $this->dbprefix;
-        return $games;
+        return $notes;
 	}
 	/**
 	 * GET TEAM SITUATIONAL RECORDS.
@@ -440,7 +453,7 @@ class LastSim_model extends MY_Model {
 				$order_by = 'lw';
 				break;
 			case 1:
-				$select = 'players.player_id,players.first_name,players.last_name,players.team_id,((SUM(ip)*3+SUM(ipf))/3) as ip,sum(w) as w,sum(l) as l,sum(s) as sv,sum(k) as k,9*sum(er)/((SUM(ip)*3+SUM(ipf))/3) as era,(sum(bb)+sum(ha)+sum(hp))/((SUM(ip)*3+SUM(ipf))/3) as whip,sum(ha)/sum(ab) as oavg,(((sum(ha)+sum(bb)+sum(hp))*(0.89*(1.255*(sum(ha)-sum(hra))+4*sum(hra))+0.56*(sum(bb)+sum(hp)-sum(iw))))/(sum(bf)*((SUM(ip)*3+SUM(ipf))/3)))*9*0.75 as erc,if(SUM(ip)<('.$pcnt.'-1),-99,3*((SUM(ip)*3+SUM(ipf))/3)+4*sum(w)-4*sum(l)+5*sum(s)+sum(k)+.5*(-2*sum(ha)-2*sum(bb))) as score';
+				$select = 'game_id,players.player_id,players.first_name,players.last_name,players.team_id,((SUM(ip)*3+SUM(ipf))/3) as ip,sum(w) as w,sum(l) as l,sum(s) as s,sum(k) as k,9*sum(er)/((SUM(ip)*3+SUM(ipf))/3) as era,(sum(bb)+sum(ha)+sum(hp))/((SUM(ip)*3+SUM(ipf))/3) as whip,sum(ha)/sum(ab) as oavg,(((sum(ha)+sum(bb)+sum(hp))*(0.89*(1.255*(sum(ha)-sum(hra))+4*sum(hra))+0.56*(sum(bb)+sum(hp)-sum(iw))))/(sum(bf)*((SUM(ip)*3+SUM(ipf))/3)))*9*0.75 as erc,if(SUM(ip)<('.$pcnt.'-1),-99,3*((SUM(ip)*3+SUM(ipf))/3)+4*sum(w)-4*sum(l)+5*sum(s)+sum(k)+.5*(-2*sum(ha)-2*sum(bb))) as score';
 				$table = 'players_game_pitching_stats';
 				$order_by = 'score';
 				break;
@@ -463,7 +476,7 @@ class LastSim_model extends MY_Model {
 					break;
 			}
 			$this->db->group_by('player_id')
-					 ->order_by($order_by.', last_name, first_name', 'desc');
+					 ->order_by($order_by.', last_name, first_name', 'asc');
 			// LIMITS AND OFFSET
 			if (isset($limit) && isset($offset))
 			{
@@ -478,7 +491,8 @@ class LastSim_model extends MY_Model {
 			} // END if
 			
 			$query = $this->db->get($table);
-			if ($query->num_rows() > 0) {
+            //print($this->db->last_query()."<br />");
+            if ($query->num_rows() > 0) {
 				$performers = $query->result_array();
 			}
 			$query->free_result();
@@ -495,7 +509,8 @@ class LastSim_model extends MY_Model {
 	protected function getInningScores($game_id = false, $innings = false) {
 		if ($game_id === false) return false;
 		$inningscores = array();
-		$query = $this->db->select('team,inning,score')
+		if (!$this->use_prefix) $this->db->dbprefix = '';
+			$query = $this->db->select('team,inning,score')
 				 ->where('game_id',$game_id)
 				 ->where("inning > ".($innings-12))
 				 ->order_by('team,inning','asc')
@@ -507,6 +522,7 @@ class LastSim_model extends MY_Model {
 			} // END foreach
 		} // END if
 		$query->free_result();
+		if (!$this->use_prefix) $this->db->dbprefix = $this->dbprefix;
 		return $inningscores;
 	}
 	/**
@@ -516,14 +532,16 @@ class LastSim_model extends MY_Model {
 	 */
 	protected function getPitcherInfo($winner = false, $loser = false, $save = false) {
 		$pitcherStats = array();
-		$query = $this->db->select('player_id,first_name,last_name')
+		if (!$this->use_prefix) $this->db->dbprefix = '';
+			$query = $this->db->select('player_id,first_name,last_name')
 				 ->where('player_id',$winner)
 				 ->or_where("player_id",$loser);
 		if ($save !== false && $save > 0) {
 			$this->db->or_where("player_id",$save);
 		}
 		$query = $this->db->get('players');
-		if ($query->num_rows() > 0) {
+        //print($this->db->last_query()."<br />");
+        if ($query->num_rows() > 0) {
 			foreach($query->result_array() as $row) {
 				if ($row['player_id'] == $winner) {
 					$pitcherStats['wp'] = $row;
@@ -535,6 +553,7 @@ class LastSim_model extends MY_Model {
 			} // END foreach
 		} // END if
 		$query->free_result();
+		if (!$this->use_prefix) $this->db->dbprefix = $this->dbprefix;
 		return $pitcherStats;
 	}
 	/**
@@ -545,16 +564,19 @@ class LastSim_model extends MY_Model {
 	protected function getHitterInfo($game_id = false) {
 		if ($game_id === false) return false;
 		$batterStats = array();
-		$query = $this->db->select('players.player_id,players.team_id,players_game_batting.hr,players.first_name,players.last_name')
+		if (!$this->use_prefix) $this->db->dbprefix = '';
+		$this->db->select('players.player_id,players.team_id,players_game_batting.hr,players.first_name,players.last_name')
 				 ->join('players_game_batting','players.player_id = players_game_batting.player_id','right outer')
-				 ->where('game_id',$game_id)
-				 ->get('players');
-		if ($query->num_rows() > 0) {
+				 ->where('game_id',$game_id);
+	    $query = $this->db->get('players');
+        //print($this->db->last_query()."<br />");
+        if ($query->num_rows() > 0) {
 			foreach($query->result_array() as $row) {
 				array_push($batterStats,$row);
 			} // END foreach
 		} // END if
 		$query->free_result();
+		if (!$this->use_prefix) $this->db->dbprefix = $this->dbprefix;
 		return $batterStats;
 	}
 }
