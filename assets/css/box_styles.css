@@ -1,0 +1,85 @@
+ol, ul {list-style: none; margin:0px; padding:0px;}
+.gameDate {text-align:left;padding:4px;color:#5e5e5e;font-family:Verdana,Arial,Helvetica,sans-serif;font-size:11px}
+.mod-scorebox a, .mod-scorebox a:visited, .mod-scorebox a:hover  { font-size:12px; }
+.mod-noborder .mod-content,.mod-no-border .mod-content{background:0}
+.mod-scorebox { padding: 0px; width:100%; border:1px solid #c2c2c2; font-size:13px;  }
+.mod-scorebox .mod-content{padding:0}
+.mod-scorebox .mod-content p{margin:0;}
+.mod-scorebox .mod-content team {margin:0; font0size:18px;}
+.mod-scorebox.preview .game-header{background:#e9e9e9 url(../images/bg_header_preview.jpg) top left no-repeat;padding:0 6px;border-bottom:1px solid #dfdfdf;height:1%;overflow:hidden}
+.mod-scorebox.in-game .game-header{background:#dcdcdc url(../images/bg_header_ingame.jpg) top left no-repeat;padding:0 6px;border-bottom:1px solid #dfdfdf;height:1%;overflow:hidden}
+.mod-scorebox.final-state .game-header{background:#3f3f3f url(../images/bg_header_final.jpg) top left no-repeat;padding:0 6px;border-bottom:1px solid #dfdfdf;height:1%;overflow:hidden}
+.mod-scorebox.feature .team{background:#fefefe url(../images/bg-team-featured.jpg) repeat-x scroll left top;border-bottom:1px solid #97c09c9}
+/*.mod-scorebox .game-header p{font-size:10px}*/
+.mod-scorebox .game-header .game-status{float:left;width:130px;margin-top:3px}
+.mod-scorebox.preview .game-header .game-status{margin:0}
+.mod-scorebox.preview .game-header{padding:2px 6px}
+.mod-scorebox.preview .game-header p{color:#454545!important}
+.mod-scorebox.in-game .game-header p{color:#fff!important}
+.mod-scorebox.final-state .game-header p{color:#fff!important}
+.mod-scorebox.preview .game-header .tv{float:right;text-align:right;font-weight:700;height:15px}
+.mod-scorebox ul.score{float:right;margin-top:6px}
+.mod-scorebox ul.score.header{margin-top:0;}
+.mod-scorebox ul.score li{float:left;width:25px;text-align:center;color:#454545; font-size:13px;}
+.mod-scorebox ul.score.header li{color:#fff!important;padding:0px;}
+.mod-scorebox ul.score.header li.final{padding-bottom:1px}
+.mod-scorebox.in-game ul.score.header li{color:#000!important}
+.mod-scorebox.final-state ul.score.header li{color:#fff!important;font-size:11px; font-weight:normal;}
+.mod-scorebox.in-game.overtime ul.score.header li{color:#fff!important}
+.mod-scorebox ul.score li.final{color:#000;font-size:15px;font-weight:700;line-height:16px;margin-left:9px;margin-right:0;min-width:27px;padding:1px;text-align:center;margin-bottom:2px}
+.mod-scorebox .team{overflow:hidden;clear:both;padding:6px 6px 6px 0;border-bottom:1px solid #dfdfdf;background:#fefefe url(../images/bg_team.jpg) top left repeat-x;height:1%;position:relative}
+.mod-scorebox.my-game .team{background:#ebdc94 url(../images/bg_team_my.jpg) top left repeat-x;border-bottom:1px solid #cec381}
+.mod-scorebox.feature .team{background:#97c0c9 url(../images/bg-featured.jpg) repeat-x scroll center top!important}
+.mod-scorebox .team.home{border-bottom:1px solid #a8a8a8}
+.mod-scorebox .team .winner-arrow{position:absolute;left:6px;top:13px;background:transparent url(../images/winner_arrow.png) top left no-repeat;height:16px;width:6px}
+.mod-scorebox .team .logo-small{float:left;margin-left:12px;width:40px;height:40px}
+.mod-scorebox .team .team-rank{float:left;font:normal 700 11px Helvetica,Arial,sans-serif;color:#343434;padding:2px 0 0;margin-left:5px;text-align:center}
+.mod-scorebox .team .team-capsule{float:left;margin-left:12px; font-size:15px;}
+.mod-scorebox .team .team-capsule p.team-name{font:normal 700 16px Helvetica,Arial,sans-serif;color:#343434}
+.mod-scorebox .team .team-capsule p.team-name a{color:#343434; font-size:16px;}
+.mod-scorebox .team .team-capsule p.team-name a:hover{text-decoration:none}
+.mod-scorebox .team .team-capsule p.team-name a:visited{color:#343434!important}
+.mod-scorebox .team .team-capsule p.record{color:#626262}
+.mod-scorebox .team .team-links{display:block;text-align:right;margin-top:8px;height:1%}
+.mod-scorebox .team .team-links li{float:right;margin-left:5px}
+.mod-scorebox ul.score li {font-size:15px;}
+.mod-scorebox ul.score li.finalScore{font-weight:bold; font-size:15px;}
+.mod-scorebox .game-links{background:transparent url(../images/bg_gamelinks.jpg) top left repeat-x}
+.mod-scorebox.final-state .headline{padding:6px;border-bottom:1px solid #a8a8a8;font-weight:700;font-size:9px}
+.mod-scorebox ul.score li.finalScore.updated{background-color:#5f5f64;color:#fff}
+body.scoreboard .mod-scorebox p{padding-top:0}
+.mod-scorebox-final .game-header{border-top:2px solid #4d4d4d}
+
+
+.mod-scorebox .game-header .game-header-table{color:#343434}
+.mod-scorebox .game-header .game-header-table tr td.team-name a{color:#343434}
+.mod-scorebox .game-header .game-header-table tr.loser{font-weight:bold}
+.mod-scorebox.pregame .game-header,.mod-scorebox.pregame .game-header .game-header-table,.mod-scorebox.pregame .game-header ul.game-info,.mod-scorebox.pregame .game-header .game-header-table tr td.team-name a{color:#343434;font-weight:bold}
+.mod-scorebox .game-header ul.game-info{padding-top:0}
+.mod-scorebox .game-header ul.game-info li{line-height:30px!important;min-height:30px!important}
+.mod-scorebox .recap-headline{padding:5px;clear:both;font-weight:bold;line-height:14px;border-bottom:1px solid #c2c2c2}
+.mod-scorebox .last-play{color:#555;line-height:14px;padding:5px}
+.expand-gameLinks{clear:both;line-height:14px;padding:5px}
+.mod-scorebox .flag{background:url("http://a1.espncdn.com/ncf/scoreboard/2009/i/bg_flag_pre.jpg") repeat-x scroll left top #fefefe;border-bottom:1px solid #dbdbdb;border-left:1px solid #dbdbdb;border-right:1px solid #dbdbdb;clear:both;color:#414545;font-weight:bold;height:15px;margin-left:4px;margin-right:4px;padding:3px 0 2px;text-align:center}
+.mod-scorebox table.game-details{margin:0; width:100%;}
+.leader-table{padding-bottom:4px}
+.leader-table .label{width:35px}
+.leader-table .team-label{width:115px}
+.leader-table .leader-value{text-align:right!important;padding-right:15px;font-weight:bold}
+.mod-scorebox .game-header ul.game-info li span.time-remaining{text-indent:5px!important;top:0;_top:12px}
+.detail-display{display:none;clear:both}
+.detail-display .last-play{border-bottom:1px solid #c2c2c2;padding-bottom:4px}
+.detail-display div.linescore{border-bottom:1px solid #c2c2c2;padding-bottom:4px}
+.border-bottom{border-bottom:1px solid #c2c2c2}
+.border-top{border-top:1px solid #c2c2c2}
+.game-info-module{padding:5px;color:#555;}
+.game-info-module .team { border:none; padding:0px; margin:0px; background:none; }
+
+td.featured,.mod-scorebox table.game-details tr td.featured{font-weight:bold;padding-left:4px;text-align:right;}
+.mod-scorebox table.game-details th { text-align: right;}
+
+.mod-scoreboard .mod-content ul ul.top-performers li{font-weight:normal}
+.mod-scoreboard .mod-content ul.top-performer li.first{border-top:0; display:block;min-height: 55px;}
+.mod-scoreboard .mod-content ul.top-performer .leader{min-height: 55px;}
+.mod-scoreboard .mod-content ul img{float:left;padding-right:10px}
+.mod-scoreboard .mod-content ul li ul li.playerName a{padding-right:8px;font-weight:bold}
