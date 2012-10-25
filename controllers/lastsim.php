@@ -40,14 +40,14 @@ class LastSim extends Front_Controller {
         $team_id = $this->uri->segment(3);
 		$league_id = $this->uri->segment(4);
 		if (!isset($league_id) || empty($league_id) || $league_id == -1) {
-			$league_id = $settings['ootp.league_id'];
+			$league_id = $settings['osp.league_id'];
 		}
 		if (isset($team_id) && !empty($team_id) && $team_id !== NULL) {
 			$league = $this->leagues_model->find($league_id);
             if (isset($league) && $league->league_id != NULL) {
 				$this->sim_model->init($settings['ootp.calc_length'],$settings['ootp.auto_sim_length'],(isset($settings['ootp.sim_length']) && !empty($settings['ootp.sim_length']) ? $settings['ootp.sim_length'] : false));
-                // ASSURE PATH COMPLIANCE TO OOPT VERSION
                 $this->load->helper('open_sports_toolkit/general');
+                // ASSURE PATH COMPLIANCE TO OOPT VERSION
                 $settings = get_asset_path($settings);
 
                 $teams = $this->teams_model->get_teams_array($league_id);
@@ -73,7 +73,8 @@ class LastSim extends Front_Controller {
 		if (!function_exists('form_open')) {
             $this->load->helper('form');
         }
-
+		Assets::add_module_css('lastsim','box_styles.css');
+                
 		Template::render();
 	}
 }

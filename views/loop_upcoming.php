@@ -16,8 +16,8 @@
 						<table cellpadding="0" cellspacing="0" style="border:1px black solid;width:400px;margin-top:2px;margin-left:0px;">
 						<tr>
 							<td style="padding:1px;width:44px;border-right:1px solid #999999;">
-							<img src="<?php echo($settings['ootp.team_logo_path'].str_replace(".png","_40.png",$teams[$aid]['logo_file']));?>" width="40" height="40"><br />
-							<img src="<?php echo($settings['ootp.team_logo_path'].str_replace(".png","_40.png",$teams[$hid]['logo_file']));?>" width="40" height="40"><br />
+							<img src="<?php echo($settings['ootp.team_logo_url'].str_replace(".png","_40.png",$teams[$aid]['logo_file']));?>" width="40" height="40"><br />
+							<img src="<?php echo($settings['ootp.team_logo_url'].str_replace(".png","_40.png",$teams[$hid]['logo_file']));?>" width="40" height="40"><br />
 							</td>
 							
 							<td valign="top" style="padding:0px;margin:0px">
