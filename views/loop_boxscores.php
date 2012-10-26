@@ -3,7 +3,7 @@
 		$text = "";
 		$gid = 0;
 		$boxCount = 0;
-		$report_path = $settings['ootp.asset_url'];
+		$report_path = $settings['osp.asset_url'];
 		if (isset($boxscores) && is_array($boxscores) && sizeof($boxscores) > 0) :
 			foreach($boxscores as $grow) :			
 				$gid = $grow['game_id'];
@@ -30,10 +30,10 @@
 						</div>
 						<div class="team away">
 							<div id="aWinner" class="winner-arrow" style="display:<?php if($grow['runs0'] > $grow['runs1']) { echo('block'); } else { echo('none'); } ?>"></div>
-							<div class="logo-small" style="background: url(<?php echo($settings['ootp.team_logo_url'].str_replace(".png","_40.png",$teams[$aid]['logo_file']));?>) top left no-repeat;"></div>
+							<div class="logo-small" style="background: url(<?php echo($settings['osp.team_logo_url'].str_replace(".png","_40.png",$teams[$aid]['logo_file']));?>) top left no-repeat;"></div>
 							<div class="team-capsule">
 								<p id="aNameOffset" class="team-name" style="padding-top:6px;">
-									<span id="aTeamName"><a href="<?php echo($settings['ootp.asset_url'].'teams/team_'.$aid); ?>.html"><?php echo($teams[$aid]['name']); ?></a></span>
+									<span id="aTeamName"><a href="<?php echo($settings['osp.asset_url'].'teams/team_'.$aid); ?>.html"><?php echo($teams[$aid]['name']); ?></a></span>
 								</p>
 								<p id="aRecord" class="record">&nbsp;</p>
 							</div>
@@ -46,10 +46,10 @@
 							</div>
 						<div class="team home">
 							<div id="hWinner" class="winner-arrow" style="display:<?php if($grow['runs1'] > $grow['runs0']) { echo('block'); } else { echo('none'); } ?>"></div>
-							<div class="logo-small" style="background: url(<?php echo($settings['ootp.team_logo_url'].str_replace(".png","_40.png",$teams[$hid]['logo_file']));?>) top left no-repeat;"></div>
+							<div class="logo-small" style="background: url(<?php echo($settings['osp.team_logo_url'].str_replace(".png","_40.png",$teams[$hid]['logo_file']));?>) top left no-repeat;"></div>
 							<div class="team-capsule">
 								<p id="hNameOffset" class="team-name" style="padding-top:6px;">
-									<span id="hTeamName"><a href="<?php echo($settings['ootp.asset_url'].'teams/team_'.$hid); ?>.html"><?php echo($teams[$hid]['name']); ?></a></span>
+									<span id="hTeamName"><a href="<?php echo($settings['osp.asset_url'].'teams/team_'.$hid); ?>.html"><?php echo($teams[$hid]['name']); ?></a></span>
 								</p>
 								<p id="hRecord" class="record">&nbsp;</p>
 							</div>
@@ -61,8 +61,8 @@
 							</ul>
 						</div>
 						<div id="gameLinks" class="expand-gameLinks">
-							<a href="<?php echo($settings['ootp.asset_url'].'box_scores/game_box_'.$gid.'.html'); ?>">Box&nbsp;Score</a>
-							&nbsp;&#187;&nbsp;  <a href="<?php echo($settings['ootp.asset_url']. 'game_logs/log_'.$gid.'.html'); ?>">Game Log</a>
+							<a href="<?php echo($settings['osp.asset_url'].'box_scores/game_box_'.$gid.'.html'); ?>">Box&nbsp;Score</a>
+							&nbsp;&#187;&nbsp;  <a href="<?php echo($settings['osp.asset_url']. 'game_logs/log_'.$gid.'.html'); ?>">Game Log</a>
 							<?php 
 							if ($gamecast_links) {
 								echo('&nbsp;&#187;&nbsp; Replay: '.anchor('#','Inline',array('id'=>'1_'.$boxCount.'_'.$gid,'rel'=>'replay'))." | ".anchor('#','New Window',array('id'=>'2_'.$boxCount.'_'.$gid,'rel'=>'replay')));
@@ -98,11 +98,11 @@
 									$hinn.=$tInnTpl.'hls'.($row['inning']-1).'">'.$row['score'].'</td>';
 								endif;
 							endforeach;
-							/*for ($i=0;$i<(12-$inncnt);$i++) {
+							for ($i=0;$i<(12-$inncnt);$i++) {
 								$inntxt	.=	'<th style="width: 5px;">&nbsp;</th>'."\n";
-								$ainn	.=	'<td style="width: 5px;">&nbsp;</td>'."\n";
-								$hinn	.=	'<td style="width: 5px;">&nbsp;</td>'."\n";
-							} */
+								$ainn	.=	'<td>&nbsp;</td>'."\n";
+								$hinn	.=	'<td>&nbsp;</td>'."\n";
+							}
 							$inntxt	.=	$innRowSum.'T">R</td>'."\n".$innRowSum.'H">H</td>'."\n".$innRowSum.'E">E</td>'."\n";
 							$ainn	.=	$tInnSum.'T">'.$grow['runs0'].'</td>'."\n".$tInnSum.'H">'.$grow['hits0'].'</td>'."\n".$tInnSum.'E">'.$grow['errors0'].'</td>'."\n";
 							$hinn	.=	$tInnSum.'T">'.$grow['runs1'].'</td>'."\n".$tInnSum.'H">'.$grow['hits1'].'</td>'."\n".$tInnSum.'E">'.$grow['errors1'].'</td>'."\n";
@@ -114,11 +114,11 @@
 							</thead>
 							<tbody>
 							<tr>
-								<td class="team"><a href="<?php echo($settings['ootp.asset_url'].'teams/team_'.$aid.'.html'); ?>"><?php echo($teams[$aid]['abbr']); ?></a></td>
+								<td class="team"><a href="<?php echo($settings['osp.asset_url'].'teams/team_'.$aid.'.html'); ?>"><?php echo($teams[$aid]['abbr']); ?></a></td>
 								<?php echo($ainn); ?>
 							</tr>
 							<tr>
-								<td class="team"><a href="<?php echo($settings['ootp.asset_url'].'teams/team_'.$hid.'.html'); ?>"><?php echo($teams[$hid]['abbr']); ?></a></td>
+								<td class="team"><a href="<?php echo($settings['osp.asset_url'].'teams/team_'.$hid.'.html'); ?>"><?php echo($teams[$hid]['abbr']); ?></a></td>
 								<?php echo($hinn); ?>
 							</tr>
 							
@@ -184,7 +184,6 @@
 						</div>
 						<?php
 						endif;
-
 						if (isset($grow['notes']) && !empty($grow['notes'])) :
 						?>
 								<!-- NOTES -->

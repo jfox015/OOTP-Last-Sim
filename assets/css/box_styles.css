@@ -2,13 +2,13 @@ ol, ul {list-style: none; margin:0px; padding:0px;}
 .gameDate {text-align:left;padding:4px;color:#5e5e5e;font-family:Verdana,Arial,Helvetica,sans-serif;font-size:11px}
 .mod-scorebox a, .mod-scorebox a:visited, .mod-scorebox a:hover  { font-size:12px; }
 .mod-noborder .mod-content,.mod-no-border .mod-content{background:0}
-.mod-scorebox { padding: 0px; width:100%; border:1px solid #c2c2c2; font-size:13px;  }
+.mod-scorebox, .mod-scoreboard { padding: 0px; width:100%; border:1px solid #c2c2c2; font-size:13px;  }
 .mod-scorebox .mod-content{padding:0}
 .mod-scorebox .mod-content p{margin:0;}
 .mod-scorebox .mod-content team {margin:0; font0size:18px;}
-.mod-scorebox.preview .game-header{background:#e9e9e9 url(../images/bg_header_preview.jpg) top left no-repeat;padding:0 6px;border-bottom:1px solid #dfdfdf;height:1%;overflow:hidden}
-.mod-scorebox.in-game .game-header{background:#dcdcdc url(../images/bg_header_ingame.jpg) top left no-repeat;padding:0 6px;border-bottom:1px solid #dfdfdf;height:1%;overflow:hidden}
-.mod-scorebox.final-state .game-header{background:#3f3f3f url(../images/bg_header_final.jpg) top left no-repeat;padding:0 6px;border-bottom:1px solid #dfdfdf;height:1%;overflow:hidden}
+.mod-scorebox.preview .game-header{background:#e9e9e9 url(../images/bg_header_preview.jpg) top left no-repeat;padding:0 6px;border-bottom:1px solid #dfdfdf;overflow:hidden}
+.mod-scorebox.in-game .game-header{background:#dcdcdc url(../images/bg_header_ingame.jpg) top left no-repeat;padding:0 6px;border-bottom:1px solid #dfdfdf;overflow:hidden}
+.mod-scorebox.final-state .game-header{background:#3f3f3f url(../images/bg_header_final.jpg) top left no-repeat;padding:0 6px;border-bottom:1px solid #dfdfdf;overflow:hidden}
 .mod-scorebox.feature .team{background:#fefefe url(../images/bg-team-featured.jpg) repeat-x scroll left top;border-bottom:1px solid #97c09c9}
 /*.mod-scorebox .game-header p{font-size:10px}*/
 .mod-scorebox .game-header .game-status{float:left;width:130px;margin-top:3px}
@@ -27,7 +27,7 @@ ol, ul {list-style: none; margin:0px; padding:0px;}
 .mod-scorebox.final-state ul.score.header li{color:#fff!important;font-size:11px; font-weight:normal;}
 .mod-scorebox.in-game.overtime ul.score.header li{color:#fff!important}
 .mod-scorebox ul.score li.final{color:#000;font-size:15px;font-weight:700;line-height:16px;margin-left:9px;margin-right:0;min-width:27px;padding:1px;text-align:center;margin-bottom:2px}
-.mod-scorebox .team{overflow:hidden;clear:both;padding:6px 6px 6px 0;border-bottom:1px solid #dfdfdf;background:#fefefe url(../images/bg_team.jpg) top left repeat-x;height:1%;position:relative}
+.mod-scorebox .team{overflow:hidden;clear:both;padding:6px 6px 6px 0;border-bottom:1px solid #dfdfdf;background:#fefefe url(../images/bg_team.jpg) top left repeat-x;position:relative}
 .mod-scorebox.my-game .team{background:#ebdc94 url(../images/bg_team_my.jpg) top left repeat-x;border-bottom:1px solid #cec381}
 .mod-scorebox.feature .team{background:#97c0c9 url(../images/bg-featured.jpg) repeat-x scroll center top!important}
 .mod-scorebox .team.home{border-bottom:1px solid #a8a8a8}
@@ -40,7 +40,7 @@ ol, ul {list-style: none; margin:0px; padding:0px;}
 .mod-scorebox .team .team-capsule p.team-name a:hover{text-decoration:none}
 .mod-scorebox .team .team-capsule p.team-name a:visited{color:#343434!important}
 .mod-scorebox .team .team-capsule p.record{color:#626262}
-.mod-scorebox .team .team-links{display:block;text-align:right;margin-top:8px;height:1%}
+.mod-scorebox .team .team-links{display:block;text-align:right;margin-top:8px;}
 .mod-scorebox .team .team-links li{float:right;margin-left:5px}
 .mod-scorebox ul.score li {font-size:15px;}
 .mod-scorebox ul.score li.finalScore{font-weight:bold; font-size:15px;}
@@ -60,7 +60,7 @@ body.scoreboard .mod-scorebox p{padding-top:0}
 .mod-scorebox .recap-headline{padding:5px;clear:both;font-weight:bold;line-height:14px;border-bottom:1px solid #c2c2c2}
 .mod-scorebox .last-play{color:#555;line-height:14px;padding:5px}
 .expand-gameLinks{clear:both;line-height:14px;padding:5px}
-.mod-scorebox .flag{background:url("http://a1.espncdn.com/ncf/scoreboard/2009/i/bg_flag_pre.jpg") repeat-x scroll left top #fefefe;border-bottom:1px solid #dbdbdb;border-left:1px solid #dbdbdb;border-right:1px solid #dbdbdb;clear:both;color:#414545;font-weight:bold;height:15px;margin-left:4px;margin-right:4px;padding:3px 0 2px;text-align:center}
+.mod-scorebox .flag{background:url(../images/bg_flag_pre.jpg) repeat-x scroll left top #fefefe;border-bottom:1px solid #dbdbdb;border-left:1px solid #dbdbdb;border-right:1px solid #dbdbdb;clear:both;color:#414545;font-weight:bold;height:15px;margin-left:4px;margin-right:4px;padding:3px 0 2px;text-align:center}
 .mod-scorebox table.game-details{margin:0; width:100%;}
 .leader-table{padding-bottom:4px}
 .leader-table .label{width:35px}
@@ -78,8 +78,11 @@ body.scoreboard .mod-scorebox p{padding-top:0}
 td.featured,.mod-scorebox table.game-details tr td.featured{font-weight:bold;padding-left:4px;text-align:right;}
 .mod-scorebox table.game-details th { text-align: right;}
 
-.mod-scoreboard .mod-content ul ul.top-performers li{font-weight:normal}
-.mod-scoreboard .mod-content ul.top-performer li.first{border-top:0; display:block;min-height: 55px;}
-.mod-scoreboard .mod-content ul.top-performer .leader{min-height: 55px;}
+.mod-scoreboard .mod-content ul ul.top-performers li{font-weight:normal; padding-top:5px;}
+.mod-scoreboard .mod-content ul.top-performer li.first{border-top:0; display:block;min-height: 50px;}
+.mod-scoreboard .mod-content ul.top-performer .leader{min-height: 50px; padding: 6px 0 6px 15px; border-top:1px solid #c2c2c2;}
 .mod-scoreboard .mod-content ul img{float:left;padding-right:10px}
 .mod-scoreboard .mod-content ul li ul li.playerName a{padding-right:8px;font-weight:bold}
+.mod-scoreboard .mod-header {background:transparent url(../images/module_header_gradient.gif) 0 0 repeat-x;height:25px;clear:both}
+.mod-scoreboard .mod-header h4{color:#fff;margin:0;padding:0 0 0 10px;font-family:helvetica,arial,sans-serif;font-size:12px;line-height:25px;letter-spacing:.3px}
+.mod-noborder .mod-header{border:0!important}

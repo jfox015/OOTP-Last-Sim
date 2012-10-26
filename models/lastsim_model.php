@@ -7,9 +7,6 @@
  *	@version		0.1
  *
 */
-define('RANGE_GAME_ID_LIST', 0);
-define('RANGE_DATE_LIST', 1);
-define('RANGE_TEAM_LIST', 2);
 
 class LastSim_model extends MY_Model {
 
@@ -26,6 +23,9 @@ class LastSim_model extends MY_Model {
 	protected $dbprefix = '';
     protected $use_prefix = false;
 
+
+	//--------------------------------------------------------------------
+	
 	/**
 	 *	C'TOR
 	 *	Creates a new instance of LastSim_model
@@ -34,12 +34,14 @@ class LastSim_model extends MY_Model {
 		parent::__construct();
 		// Since this model doesn't extend the base model in the open sports toolkit, we do this manually
         $this->dbprefix = $this->db->dbprefix;
-        $this->use_prefix = ($this->settings_lib->item('ootp.use_db_prefix') == 1) ? true : false;
+        $this->use_prefix = ($this->settings_lib->item('osp.use_db_prefix') == 1) ? true : false;
     }
 	
 	/*----------------------------------------------------------------------
 	/	PUBLIC FUNCTIONS
 	/---------------------------------------------------------------------*/
+	
+	//--------------------------------------------------------------------
 	
 	/**
 	 *	INIT.
@@ -53,6 +55,9 @@ class LastSim_model extends MY_Model {
 			$this->simLen=$simLen;
 		}
 	}
+
+	//--------------------------------------------------------------------
+	
 	/**
 	 *	GET BOX SCORES.
 	 *	Fetch Box scores for the given period.
@@ -89,6 +94,9 @@ class LastSim_model extends MY_Model {
         $this->db->dbprefix = $oldprefix;
         return $boxscores;
 	}
+
+	//--------------------------------------------------------------------
+	
 	/**
 	 *	GET PLAYOFF BOX SCORES.
 	 *	Fetch Box scores for the given period.
@@ -125,6 +133,9 @@ class LastSim_model extends MY_Model {
         $this->db->dbprefix = $oldprefix;
         return $boxscores;
 	}
+
+	//--------------------------------------------------------------------
+	
 	/**
 	 *	GET UPCOMING GAMES.
 	 *	Retrieves a list of games that are coming up in the teams schedule.
@@ -158,6 +169,9 @@ class LastSim_model extends MY_Model {
         $this->db->dbprefix = $oldprefix;
         return $upcoming;
 	}
+
+	//--------------------------------------------------------------------
+	
 	/**
 	 *	GET UPCOMING PLAYOFF GAMES.
 	 *	Retrieves a list of playoff games that are coming up in the teams schedule.
@@ -188,6 +202,9 @@ class LastSim_model extends MY_Model {
         $this->db->dbprefix = $oldprefix;
         return $upcoming;
 	}
+
+	//--------------------------------------------------------------------
+	
 	/**
 	 *	GET SITUATIONAL SCORING.
 	 *	Retrieves a list of situatioanl records for the specified team.
@@ -240,6 +257,9 @@ class LastSim_model extends MY_Model {
         $this->db->dbprefix = $oldprefix;
         return $team_scores;
 	}
+
+	//--------------------------------------------------------------------
+	
 	/**
 	 * GET NOTES BATTING.
 	 *
@@ -280,29 +300,31 @@ class LastSim_model extends MY_Model {
 
 			if ($hr > 2) {
 				if (!empty($notes)) { $notes .= ", "; }
-				$notes .= '<a href="'.$settings['ootp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> belts $hr HR\'s';
+				$notes .= '<a href="'.$settings['osp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> belts $hr HR\'s';
 			}
 			if ($h > 5) {
 				if (!empty($notes)) { $notes .= ", "; }
-				$notes .= '<a href="'.$settings['ootp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> smacks $h hits';
+				$notes .= '<a href="'.$settings['osp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> smacks $h hits';
 			}
 			if ($rbi > 7) {
 				if (!empty($notes)) { $notes .= ", "; }
-				$notes .= '<a href="'.$settings['ootp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> drives in $rbi';
+				$notes .= '<a href="'.$settings['osp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> drives in $rbi';
 			}
 			if ($sb > 3) {
 				if (!empty($notes)) { $notes .= ", "; }
-				$notes .= '<a href="'.$settings['ootp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> steals $sb bases';
+				$notes .= '<a href="'.$settings['osp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> steals $sb bases';
 			}
 			if (($s > 0) && ($d > 0) && ($t > 0) && ($hr > 0)) {
 				if (!empty($notes)) { $notes .= ", "; }
-				$notes .= '<a href="'.$settings['ootp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> hits for the cycle!';
+				$notes .= '<a href="'.$settings['osp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> hits for the cycle!';
 			}
         }
         $query->free_result();
         if (!$this->use_prefix) $this->db->dbprefix = $this->dbprefix;
         return $notes;
 	}
+
+	//--------------------------------------------------------------------
 	
 	/**
 	 * GET NOTES Pitching.
@@ -348,31 +370,34 @@ class LastSim_model extends MY_Model {
 			if ($k > 14) 
 			{
 				if (!empty($notes)) { $notes .= ", "; }
-				$notes .= '<a href="'.$settings['ootp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> strikes out '.$k;
+				$notes .= '<a href="'.$settings['osp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> strikes out '.$k;
 			}
 			if ($ip > 9) {
 				if (!empty($notes)) { $notes .= ", "; }
-				$notes .= '<a href="'.$settings['ootp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> goes '.$dispIP.' innings';
+				$notes .= '<a href="'.$settings['osp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> goes '.$dispIP.' innings';
 			}
 			if (($ha == 0) && ($ip > 7)) {
 				if ($cg == 1) {
 					if (!empty($notes)) { $notes .= ", "; }
-					$notes .= '<a href="'.$settings['ootp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> pitches a no-hitter';
+					$notes .= '<a href="'.$settings['osp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> pitches a no-hitter';
 				}
 				else {
 					if (!empty($notes)) { $notes .= ", "; }
-					$notes .= '<a href="'.$settings['ootp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> fails to allow a hit';
+					$notes .= '<a href="'.$settings['osp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> fails to allow a hit';
 				}
 			}
 			if (($ha < 3) && ($cg == 1) && ($sho == 1) && ($ha != 0)) {
 				if (!empty($notes)) { $notes .= ", "; }
-				$notes .= '<a href="'.$settings['ootp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> pitches a '.$ha.'-hit shutout';
+				$notes .= '<a href="'.$settings['osp.asset_url'].'players/player_'.$pid.'.html">'.$name.'</a> pitches a '.$ha.'-hit shutout';
 			}
         }
         $query->free_result();
         if (!$this->use_prefix) $this->db->dbprefix = $this->dbprefix;
         return $notes;
 	}
+
+	//--------------------------------------------------------------------
+	
 	/**
 	 * GET TEAM SITUATIONAL RECORDS.
 	 *
@@ -416,8 +441,22 @@ class LastSim_model extends MY_Model {
 		}
 		return $teams;
 	}
+
+	//--------------------------------------------------------------------
 	
-	public function get_top_batters_by_gamelist($gidList = false, $pcnt = false)
+	/**
+	 * GET TOP BATTERS BY GAME LIST.
+	 *
+	 * Queries for top offensive performances for a specified list of game IDs. This i
+	 * function calls to get_top_performances(0 to return the players and data.
+	 *
+	 * @param	Array	$gidList			Array of game IDs
+	 * @param	int		$pcnt				Games played Count
+	 * @return	Array						Array of players stats and meta data
+	 *
+	 * @see 	lastSim_model::get_top_performances()
+	 */
+    public function get_top_batters_by_gamelist($gidList = false, $pcnt = false)
 	{
 		$performers = array();
 		if ($gidList !== false) 
@@ -426,8 +465,22 @@ class LastSim_model extends MY_Model {
 		}
 		return $performers;
 	}
+
+	//--------------------------------------------------------------------
 	
-	public function get_top_pitchers_by_gamelist($gidList = false, $pcnt = false)
+	/**
+	 * GET TOP PITCHERSS BY GAME LIST.
+	 *
+	 * Queries for top pitching performances for a specified list of game IDs. This i
+	 * function calls to get_top_performances(0 to return the players and data.
+	 *
+	 * @param	Array	$gidList			Array of game IDs
+	 * @param	int		$pcnt				Games played Count
+	 * @return	Array						Array of players stats and meta data
+	 *
+	 * @see 	lastSim_model::get_top_performances()
+	 */
+   public function get_top_pitchers_by_gamelist($gidList = false, $pcnt = false)
 	{
 		$performers = array();
 		if ($gidList !== false) 
@@ -440,8 +493,28 @@ class LastSim_model extends MY_Model {
 	/*----------------------------------------------------------------------
 	/	PROTECTED FUNCTIONS
 	/---------------------------------------------------------------------*/
+
+	//--------------------------------------------------------------------
 	
-	protected function get_top_performances($player_type = 0, $rangeType = false, $rangeVal0 = false, $rangeVal1 = false, $pcnt = false, $limit = 5, $offset = 0)
+	/**
+	 * GET TOP PERFORMERS.
+	 *
+	 * Queries for the top players for the given range. Each player gets a score and are ranked according
+	 * to that score.
+	 *
+	 * @param	int			$player_type		0 for batter, 1 for pitcher
+	 * @param	int			$rangeType			Range constant (RANGE_GAME_ID_LIST,RANGE_DATE_LIST,RANGE_TEAM_LIST,RANGE_PLAYER_LIST,RANGE_SEASON,RANGE_CAREER)
+	 * @param	varchar		$rangeVal0			First range value
+	 * @param	varchar		$rangeVal1			(OPTIONAL) second range var (an end date for example)
+	 * @param	int			$pcnt				(OPTIONAL) Games played Count (default is 0)
+	 * @param	int			$limit				(OPTIONAL) SQL Limit override (default is 5)
+	 * @param	int			$offset				(OPTIONAL) SQL Record offset index override (default is 0)
+	 * @return	Array							Array of players stats and meta data
+	 * 
+	 * @auuthor	Frank Esselink
+	 * @auuthor	Jeff Fox
+	 */
+    protected function get_top_performances($player_type = 0, $rangeType = false, $rangeVal0 = false, $rangeVal1 = false, $pcnt = false, $limit = 5, $offset = 0)
 	{
 		
 		$performers = array();
@@ -451,11 +524,14 @@ class LastSim_model extends MY_Model {
 				$select = 'players.player_id,players.first_name,players.last_name,players.team_id,sum(h) as h,sum(hr) as hr,sum(rbi) as rbi,sum(r) as r,sum(sb) as sb,(sum(h)/sum(ab)) as avg,(sum(h)+sum(bb)+sum(hp))/(sum(ab)+sum(bb)+sum(hp)+sum(sf)) as obp,(sum(h)+sum(d)+2*sum(t)+3*sum(hr))/sum(ab) as slg,if(SUM(pa)<(2*'.$pcnt.'),-99,(0.47*(sum(h)-sum(d)-sum(t)-sum(hr)) + .78*sum(d) + 1.09*sum(t) + 1.4*sum(hr) + .33*(sum(bb)-sum(hp)) + .3*sum(sb) + .5*(-.52*sum(cs) - .26*(sum(ab)-sum(h)-sum(gdp)) - .72*sum(gdp)))) as lw';
 				$table = 'players_game_batting';
 				$order_by = 'lw';
+				$test_field = 'ab';
 				break;
 			case 1:
-				$select = 'game_id,players.player_id,players.first_name,players.last_name,players.team_id,((SUM(ip)*3+SUM(ipf))/3) as ip,sum(w) as w,sum(l) as l,sum(s) as s,sum(k) as k,9*sum(er)/((SUM(ip)*3+SUM(ipf))/3) as era,(sum(bb)+sum(ha)+sum(hp))/((SUM(ip)*3+SUM(ipf))/3) as whip,sum(ha)/sum(ab) as oavg,(((sum(ha)+sum(bb)+sum(hp))*(0.89*(1.255*(sum(ha)-sum(hra))+4*sum(hra))+0.56*(sum(bb)+sum(hp)-sum(iw))))/(sum(bf)*((SUM(ip)*3+SUM(ipf))/3)))*9*0.75 as erc,if(SUM(ip)<('.$pcnt.'-1),-99,3*((SUM(ip)*3+SUM(ipf))/3)+4*sum(w)-4*sum(l)+5*sum(s)+sum(k)+.5*(-2*sum(ha)-2*sum(bb))) as score';
+				$select = 'game_id,players.player_id,players.first_name,players.last_name,players.team_id,((SUM(ip)*3+SUM(ipf))/3) as ip,sum(w) as w,sum(l) as l,sum(s) as s,sum(k) as k,9*sum(er)/((SUM(ip)*3+SUM(ipf))/3) as era,(sum(bb)+sum(ha)+sum(hp))/((SUM(ip)*3+SUM(ipf))/3) as whip,sum(ha)/sum(ab) as oavg,(((sum(ha)+sum(bb)+sum(hp))*(0.89*(1.255*(sum(ha)-sum(hra))+4*sum(hra))+0.56*(sum(bb)+sum(hp)-sum(iw))))/(sum(bf)*((SUM(ip)*3+SUM(ipf))/3)))*9*0.75 as erc,';
+				$select .= 'if(SUM(ip)<('.$pcnt.'-1),-99,3*((SUM(ip)*3+SUM(ipf))/3)+4*sum(w)-4*sum(l)+5*sum(s)+sum(k)+.5*(-2*sum(ha)-2*sum(bb))) as score';
 				$table = 'players_game_pitching_stats';
 				$order_by = 'score';
+				$test_field = 'ip';
 				break;
 		}
 		if ($rangeType !== false && $rangeVal0 !== false) 
@@ -465,7 +541,16 @@ class LastSim_model extends MY_Model {
 					 ->join('players', 'players.player_id = '.$table.'.player_id','right outer');
 			switch ($rangeType) {
 				case RANGE_GAME_ID_LIST:
-					$this->db->where_in('game_id', $rangeVal0);
+					$gidStr = '';
+					if (is_array($rangeVal0) && count($rangeVal0)) 
+					{
+						foreach ($rangeVal0 as $id) 
+						{
+							if (!empty($gidStr)) { $gidStr .= ' OR '; }
+							$gidStr .= 'game_id = '.$id;
+						} // END foreach
+					} // END if
+					$this->db->where('('.$gidStr.')');
 					break;
 				case RANGE_DATE_LIST:
 					$this->db->where("DATEDIFF('".$rangeVal0."',games.date)<=0")
@@ -474,9 +559,10 @@ class LastSim_model extends MY_Model {
 				case RANGE_TEAM_LIST:
 					$this->db->where_in('players.team_id', $rangeVal0);
 					break;
-			}
+			} // END switch
+			$this->db->where($table.".".$test_field.' > 0');
 			$this->db->group_by('player_id')
-					 ->order_by($order_by.', last_name, first_name', 'asc');
+					 ->order_by($order_by, 'desc');
 			// LIMITS AND OFFSET
 			if (isset($limit) && isset($offset))
 			{
@@ -487,19 +573,21 @@ class LastSim_model extends MY_Model {
 				else if ($limit != -1 && $offset > 0)
 				{
 					$this->db->limit($offset,$limit);
-				}
+				} // END if
 			} // END if
 			
 			$query = $this->db->get($table);
             //print($this->db->last_query()."<br />");
             if ($query->num_rows() > 0) {
 				$performers = $query->result_array();
-			}
+			} // END if
 			$query->free_result();
-			if (!$this->use_prefix) $this->db->dbprefix = $this->dbprefix;
-		}
+			if (!$this->use_prefix) $this->db->dbprefix = $this->dbprefix; // END if
+		} // END if $rangeType !== false
 		return $performers;
 	}
+
+	//--------------------------------------------------------------------
 	
 	/**
 	 *	GET INNING SCORES.
@@ -525,6 +613,9 @@ class LastSim_model extends MY_Model {
 		if (!$this->use_prefix) $this->db->dbprefix = $this->dbprefix;
 		return $inningscores;
 	}
+
+	//--------------------------------------------------------------------
+	
 	/**
 	 *	GET PITCHER INFO.
 	 *	Fetch  pitcher information based on winner, loser and save stats.
@@ -556,6 +647,9 @@ class LastSim_model extends MY_Model {
 		if (!$this->use_prefix) $this->db->dbprefix = $this->dbprefix;
 		return $pitcherStats;
 	}
+
+	//--------------------------------------------------------------------
+	
 	/**
 	 *	GET HITTER INFO.
 	 *	Fetch  hitter information bfor hitters with HRs.

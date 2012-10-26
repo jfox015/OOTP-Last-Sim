@@ -15,8 +15,8 @@ class LastSim extends Front_Controller {
 	public function __construct() {
 		parent::__construct();
 		$this->load->model('LastSim_model', 'sim_model');
-		$this->load->model('ootp_web_toolkit/Teams_model', 'teams_model');
-		$this->load->model('ootp_web_toolkit/Leagues_model', 'leagues_model');
+		$this->load->model('open_sports_toolkit/Teams_model', 'teams_model');
+		$this->load->model('open_sports_toolkit/Leagues_model', 'leagues_model');
 	}
 	/**
 	 *	INDEX.
@@ -45,7 +45,7 @@ class LastSim extends Front_Controller {
 		if (isset($team_id) && !empty($team_id) && $team_id !== NULL) {
 			$league = $this->leagues_model->find($league_id);
             if (isset($league) && $league->league_id != NULL) {
-				$this->sim_model->init($settings['ootp.calc_length'],$settings['ootp.auto_sim_length'],(isset($settings['ootp.sim_length']) && !empty($settings['ootp.sim_length']) ? $settings['ootp.sim_length'] : false));
+				$this->sim_model->init($settings['osp.calc_length'],$settings['osp.auto_sim_length'],(isset($settings['osp.sim_length']) && !empty($settings['osp.sim_length']) ? $settings['osp.sim_length'] : false));
                 $this->load->helper('open_sports_toolkit/general');
                 // ASSURE PATH COMPLIANCE TO OOPT VERSION
                 $settings = get_asset_path($settings);
