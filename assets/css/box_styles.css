@@ -86,3 +86,6 @@ td.featured,.mod-scorebox table.game-details tr td.featured{font-weight:bold;pad
 .mod-scoreboard .mod-header {background:transparent url(../images/module_header_gradient.gif) 0 0 repeat-x;height:25px;clear:both}
 .mod-scoreboard .mod-header h4{color:#fff;margin:0;padding:0 0 0 10px;font-family:helvetica,arial,sans-serif;font-size:12px;line-height:25px;letter-spacing:.3px}
 .mod-noborder .mod-header{border:0!important}
+
+.mod-content .spotlight li.leader a,.mod-content .spotlight li.leader a:hover,.mod-content .spotlight li.leader a:visited { font-size: 15px; color:#800; }
+.mod-scoreboard .mod-mvp { color:#ffa; }

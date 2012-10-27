@@ -172,10 +172,11 @@
 							endforeach;
                             echo("HR - ");
      						if ($hrdata[$aid]!="") :
-                                echo('<span class="awayHomers"><strong>'.$teams[$aid]['abbr'].'</strong> :'.substr_replace($hrdata[$aid],"",-1).'</span>');
+                                echo('<span class="awayHomers"><strong>'.$teams[$aid]['abbr'].'</strong> :'.$hrdata[$aid].'</span>');
                             endif;
                             if ($hrdata[$hid]!="") :
-                                echo('<span class="homeHomers"><strong>'.$teams[$hid]['abbr']."</strong> :".substr_replace($hrdata[$hid],"",-1).'</span>');
+                                if ($hrdata[$aid]!="") : echo('&nbsp;'); endif;
+								echo('<span class="homeHomers"><strong>'.$teams[$hid]['abbr']."</strong> :".$hrdata[$hid].'</span>');
                             endif;
                             if (empty($hrdata[$hid]) && empty($hrdata[$aid])) {
                                 echo("None");
