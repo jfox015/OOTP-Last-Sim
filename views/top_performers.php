@@ -32,7 +32,7 @@
                     <ul class="top-performer <?php echo (($type != "TOP_PLAYERS") ? 'spotlight' : ''); ?>">
                     <?php
                         $rownum = 1;
-                        foreach($performers as $row) :
+                        foreach($performers['stats'] as $row) :
                             $tid = $row['team_id'];
                             if (file_exists($settings['osp.players_img_path'].'player_'.$row['player_id'].'.png')) {
                                 $player_img = $settings['osp.players_img_url'].'player_'.$row['player_id'].'.png';
