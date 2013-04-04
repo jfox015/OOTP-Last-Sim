@@ -1,12 +1,12 @@
 # Last Sim Module
 
-A custom conversion of the StatsLab Last Sim functionality from StatsLab 12 to the OOTP Online Leagues Manager HMVC design.
+A custom conversion of some StatsLab Last Sim functionality to the FOSP HMVC design.
 
 ## Features
 
 - Displays a list of the most recent box scores, broken out by team
 - Display upcoming games for the same team
-- If the OOTP Gamecast module is installed, display a "Replay" link for each box score and supports both the OU and inline Gamecast display
+- Functionality can be shared across other modules
 
 ## Keep Current on the Mod
 
@@ -16,13 +16,17 @@ Follow the official Twitter feed [ootpFox07](http://twitter.com/#!/ootpFox07).
 
 - [Jeff Fox](http://www.aeoliandigital.com/) - Lead Developer
 
+## Special Thanks
+
+- Frank Esselink - Creator of the StatsLab mod for OOTP.
+
 ## Contribute to the development
 
 This mod is a 100% free and open source project. The source code is publicly available on GitHub.com. If you want to contribute to the development, simply fork the project, hack the code and send pull requests with your updates.
 
 ## License
 
-Copyright (c) 2012 Jeff Fox.
+Copyright (c) 2012-13 Jeff Fox.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
