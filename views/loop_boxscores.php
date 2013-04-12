@@ -139,7 +139,14 @@
 							foreach($grow['pitcherInfo'] as $type =>$row) {
 								$fi=$row['first_name'];
 								$fi=$fi[0];
-								$pitcher[$type]='<a href="'.$report_path.'players/player_'.$row['player_id'].'.html">'.$fi.'. '.$row['last_name'].'</a>';
+								if (function_exists('get_player_link')) 
+								{
+									$pitcher[$type]=get_player_link($row['player_id'], $fi.'. '.$row['last_name']);
+								}
+								else 
+								{
+									$pitcher[$type]='<a href="'.$report_path.'players/player_'.$row['player_id'].'.html">'.$fi.'. '.$row['last_name'].'</a>';
+								}
 							}
 						?>
 							<span id="winningPitcher"><strong>W:&nbsp;</strong> <?php echo($pitcher['wp']); ?>&nbsp;&nbsp; </span>
@@ -165,8 +172,15 @@
                                     if (!empty($hrdata[$tid])) { $hrdata[$tid] .= ","; }
                                     $fi=$row['first_name'];
 									$fi=$fi[0];
-									$hrdata[$tid].=' <a href="'.$report_path.'players/player_'.$row['player_id'].'.html">'.$fi.'. '.$row['last_name'].'</a>';
-									if ($hrcnt>1) {$hrdata[$tid].="&nbsp;(".$hrcnt.")";}
+									if (function_exists('get_player_link')) 
+									{
+										$hrdata[$tid].= ' '.get_player_link($row['player_id'], $fi.'. '.$row['last_name']);
+									}
+									else 
+									{
+										$hrdata[$tid].= ' <a href="'.$report_path.'players/player_'.$row['player_id'].'.html">'.$fi.'. '.$row['last_name'].'</a>';
+									}
+									if ($hrcnt>1) { $hrdata[$tid].="&nbsp;(".$hrcnt.")"; }
 									$tothr++;
 								endif;
 							endforeach;
