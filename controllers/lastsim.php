@@ -52,11 +52,10 @@ class LastSim extends Front_Controller {
 
                 $teams = $this->teams_model->get_teams_array($league_id);
 
-				if (in_array('players',module_list(true)))
-				{
-					modules::run('players/player_link_init');
-					$this->load->helper('players/players');
-				}
+                if (!function_exists('get_player_link'))
+                {
+                    $this->load->helper('players/players');
+                }
                 $data = array();
 				$data['boxscores'] = $this->sim_model->get_box_scores($league->current_date,$team_id, $settings, $league_id);
 				$data['gamecast_links'] = in_array('gamecast',module_list(true));
