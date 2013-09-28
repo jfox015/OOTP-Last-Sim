@@ -6,7 +6,7 @@ A custom conversion of some StatsLab Last Sim functionality to the FOSP HMVC des
 
 - Displays a list of the most recent box scores, broken out by team
 - Display upcoming games for the same team
-- Functionality can be shared across other modules
+- Box score rendering functionality can be shared across other FOSP modules
 
 ## Keep Current on the Mod
 

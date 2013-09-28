@@ -17,6 +17,8 @@ class LastSim extends Front_Controller {
 		$this->load->model('LastSim_model', 'sim_model');
 		$this->load->model('open_sports_toolkit/Teams_model', 'teams_model');
 		$this->load->model('open_sports_toolkit/Leagues_model', 'leagues_model');
+		
+		$this->lang->load('lastsim');
 	}
 	/**
 	 *	INDEX.
@@ -42,6 +44,9 @@ class LastSim extends Front_Controller {
 		if (!isset($league_id) || empty($league_id) || $league_id == -1) {
 			$league_id = $settings['osp.league_id'];
 		}
+		$teams = $this->teams_model->get_teams_array($league_id);
+		Template::set('teams',$teams);
+		Assets::add_js($this->load->view('lastsim/boxscores_js',null,true),'inline');
 		if (isset($team_id) && !empty($team_id) && $team_id !== NULL) {
 			$league = $this->leagues_model->find($league_id);
             if (isset($league) && $league->league_id != NULL) {
@@ -50,12 +55,11 @@ class LastSim extends Front_Controller {
                 // ASSURE PATH COMPLIANCE TO OOPT VERSION
                 $settings = get_asset_path($settings);
 
-                $teams = $this->teams_model->get_teams_array($league_id);
-
-                if (!function_exists('get_player_link'))
-                {
-                    $this->load->helper('players/players');
-                }
+                if (in_array('players',module_list(true)))
+				{
+					modules::run('players/player_link_init');
+					$this->load->helper('players/players');
+				}
                 $data = array();
 				$data['boxscores'] = $this->sim_model->get_box_scores($league->current_date,$team_id, $settings, $league_id);
 				$data['gamecast_links'] = in_array('gamecast',module_list(true));
@@ -70,8 +74,6 @@ class LastSim extends Front_Controller {
                 $data['team_scores'] = $this->sim_model->get_situational_scoring($team_id,$league->league_id);
 				$data['upcoming'] = $this->sim_model->get_upcoming_games($league->current_date,$team_id, $settings);
 				Template::set('upcoming',$this->load->view('lastsim/loop_upcoming',$data,true));
-				
-				Template::set('scripts',$this->load->view('lastsim/boxscores_js',null,true));
 			}	
 		}
 		if (!function_exists('form_open')) {
